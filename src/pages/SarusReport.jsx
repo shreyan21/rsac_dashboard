@@ -23,7 +23,8 @@ export default function SarusReport() {
 
   const isLucknow = table === "sarus_lucknow_population";
 
-  /* districts */
+
+
   useEffect(() => {
     if (!table) return;
     fetch(`${API}/districts?table=${table}`)
@@ -68,9 +69,9 @@ export default function SarusReport() {
           {[10, 25, 50].map(n => <option key={n} value={n}>{n} Rows</option>)}
         </select>
 
-        <a className="btn pdf" href={`${API}/report/export/pdf?table=${table}`}>PDF</a>
-        <a className="btn excel" href={`${API}/report/export/excel?table=${table}`}>Excel</a>
-        <a className="btn csv" href={`${API}/report/export/csv?table=${table}`}>CSV</a>
+        <button className="btn btn-danger btn-sm" href={`${API}/report/export/pdf?table=${table}`}>PDF</button>
+        <button className="btn btn-success btn-sm" href={`${API}/report/export/excel?table=${table}`}>Excel</button>
+        <button className="btn btn-secondary btn-sm" href={`${API}/report/export/csv?table=${table}`}>CSV</button>
       </div>
 
       <div className="total">Total Sarus Count: {total}</div>

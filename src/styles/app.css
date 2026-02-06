@@ -1,26 +1,42 @@
 body {
+  background: #f8f9fa;
+  font-family: "Segoe UI", sans-serif;
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f6f9fc;
+  padding: 0;
 }
 
 
 .rsac-header {
-  position: sticky;
-  top: 0;
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 6px 16px;
-  background: #eef3f7;
-  z-index: 1000;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 8px 10px;
+  flex-wrap: wrap;
 }
 
 .rsac-logo {
-  height: 30px;
+  width: 50px;
+  height: auto;
+  flex-shrink: 0;
 }
 .rsac-header h1 {
-  font-size: 18px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #003366;
+  margin: 0;
+  text-align: left;
+  flex: 1;
+}
+@media (max-width: 600px) {
+  rsac-header {
+    justify-content: flex-start;
+  }
+
+  rsac-header h1 {
+    font-size: 0.9rem;
+  }
 }
 
 .layout {
@@ -35,25 +51,32 @@ body {
   background: white;
   padding: 10px;
 }
-
+select,
+button {
+  font-size: 0.8rem;
+  padding: 5px 8px;
+  flex-shrink: 0;
+}
 .table-wrap {
   flex: 1;
   overflow: auto;
 }
+th:first-child,
+    td:first-child {
+      width: 60px;
+      font-weight: 600;
+    }
 
 
 
 .controls {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  gap: 10px;
-  margin: 12px 0;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0;
 }
-
-.btn.pdf { background: #e74c3c; }
-.btn.excel { background: #27ae60; }
-.btn.csv { background: #7f8c8d; }
-
 
 
 
@@ -73,9 +96,15 @@ table {
 }
 
 th {
+  background-color: #003366;
+  color: white;
+  text-align: center;
+  padding: 6px;
+  white-space: nowrap;
   position: sticky;
   top: 0;
-  background: #f2f2f2;
+  z-index: 2;
+  font-size: 0.85rem;
 }
 
 td, th {
@@ -84,10 +113,9 @@ td, th {
 }
 
 .pagination {
-  display: flex;
   justify-content: center;
-  gap: 4px;
-  margin: 10px 0;
+      flex-wrap: wrap;
+      margin: 8px 0;
 }
 
 .pagination button.active {
