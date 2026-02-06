@@ -33,17 +33,18 @@ export default function SarusReport() {
   }, [table]);
 
   /* report */
+  
   useEffect(() => {
     if (!table) return;
-
+  
     const q = new URLSearchParams({
       table,
       page,
       per_page: perPage
     });
-
+  
     if (district) q.append("district", district);
-
+  
     fetch(`${API}/report?${q}`)
       .then(r => r.json())
       .then(d => {
@@ -51,10 +52,20 @@ export default function SarusReport() {
         setTotal(d.total || 0);
         setCharts(d.charts || {});
       });
+  
   }, [table, page, perPage, district]);
+  
+  
 
-  const totalPages = Math.max(1, Math.ceil(total / perPage));
+  const totalPages = Math.ceil(total / perPage);
 
+
+  const chartData =
+    district && charts?.site?.length
+      ? charts.site
+      : !district && charts?.district?.length
+        ? charts.district
+        : [];
   return (
     <>
       <Header />
@@ -77,34 +88,51 @@ export default function SarusReport() {
       <div className="total">Total Sarus Count: {total}</div>
 
       <div className="layout">
-        <div className="chart-pane">
-        {isLucknow ? (
-  <>
-    <SarusPieChart
-      title="Adults / Juveniles / Nests"
-      charts={charts.population}
+      <div className="chart-pane">
+  {isLucknow ? (
+    <>
+      <SarusPieChart
+        title="Adults / Juveniles / Nests"
+        charts={charts.population}
+      />
+      <SarusPieChart
+        title="Sarus Count by Habitat"
+        charts={charts.habitat}
+        type="habitat"
+      />
+    </>
+  ) : (
+    <SarusBarChart
+      charts={
+        district
+          ? charts.site   // if you add site aggregation later
+          : charts.district
+      }
+      mode={district ? "site" : "district"}
     />
-    <SarusPieChart
-      title="Sarus Count by Habitat"
-      charts={charts.habitat}
-      type="habitat"
-    />
-  </>
-) : (
-  <SarusBarChart charts={charts.district || charts.districts} />
-)}
+  )}
+</div>
 
-        </div>
+
+
 
         <div className="table-pane">
-          <SarusTable rows={rows} />
-          {totalPages > 1 && (
+          <SarusTable
+            rows={rows}
+            page={page}
+            perPage={perPage}
+            isLucknow={isLucknow}
+          />
+
+{rows.length > 0 && totalPages > 1 && (
   <Pagination
     page={page}
     totalPages={totalPages}
     onChange={setPage}
   />
 )}
+
+
 
         </div>
       </div>

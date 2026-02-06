@@ -7,13 +7,17 @@ body {
 
 
 .rsac-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 8px 10px;
-  flex-wrap: wrap;
+    position: sticky;   /* ADD THIS */
+    top: 0;             /* ADD THIS */
+    z-index: 1000;      /* ADD THIS */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 8px 10px;
+    flex-wrap: wrap;
+  
 }
 
 .rsac-logo {
@@ -42,15 +46,20 @@ body {
 .layout {
   display: grid;
   grid-template-columns: 28% 72%;
-  gap: 12px;
+  gap: 16px;
   padding: 10px;
 }
 
+
+
 .chart-pane {
-  height: calc(100vh - 180px);
   background: white;
   padding: 10px;
+  height: calc(100vh - 200px);
+  overflow: auto;
 }
+
+
 select,
 button {
   font-size: 0.8rem;
@@ -59,8 +68,10 @@ button {
 }
 .table-wrap {
   flex: 1;
-  overflow: auto;
+  overflow-y: auto;          /* ensure vertical scroll */
+  max-height: 70vh;          /* important */
 }
+
 th:first-child,
     td:first-child {
       width: 60px;
@@ -85,8 +96,17 @@ th:first-child,
   padding: 10px;
   display: flex;
   flex-direction: column;
+  overflow: hidden;   /* important */
 }
 
+
+.total {
+  text-align: center;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #003366;
+  margin: 8px 0;
+}
 
 
 table {
@@ -103,9 +123,9 @@ th {
   white-space: nowrap;
   position: sticky;
   top: 0;
-  z-index: 2;
-  font-size: 0.85rem;
+  z-index: 10;   /* increase */
 }
+
 
 td, th {
   border: 1px solid #ddd;

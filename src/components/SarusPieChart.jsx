@@ -20,17 +20,50 @@ export default function SarusPieChart({ title, charts, type }) {
   }
 
   return (
-    <div style={{ marginBottom: "20px" }}>
-      <h4 style={{ textAlign: "center" }}>{title}</h4>
-      <Pie
-        data={{
-          labels,
-          datasets: [{
-            data: values,
-            backgroundColor: ["#4c78a8", "#f58518", "#54a24b"]
-          }]
+    <div
+      style={{
+        background: "#fff",
+        borderRadius: "10px",
+        padding: "15px",
+        boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
+        minHeight: "350px",
+        display: "flex",
+        flexDirection: "column"
+      }}
+    >
+      <h4
+        style={{
+          textAlign: "center",
+          color: "#003366",
+          marginBottom: "10px",
+          fontSize: "14px",
+          fontWeight: "600"
         }}
-      />
+      >
+        {title}
+      </h4>
+
+      <div style={{ flex: 1 }}>
+        <Pie
+          data={{
+            labels,
+            datasets: [{
+              data: values,
+              backgroundColor: ["#4c78a8", "#f58518", "#54a24b"]
+            }]
+          }}
+          options={{
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: "bottom",
+                labels: { font: { size: 11 } }
+              }
+            }
+          }}
+        />
+      </div>
     </div>
   );
 }
