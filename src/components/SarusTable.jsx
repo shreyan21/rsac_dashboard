@@ -27,6 +27,9 @@ export default function SarusTable({ rows, page, perPage, isLucknow }) {
           <tr>
             <th>SNo</th>
             {!isLucknow && <th>District</th>}
+            {isLucknow && <th>Range Forest</th>}
+            {isLucknow && <th>Name of Colony</th>}
+
             <th>Latitude</th>
             <th>Longitude</th>
             <th>Habitat</th>
@@ -43,6 +46,9 @@ export default function SarusTable({ rows, page, perPage, isLucknow }) {
               <td>{(i + 1) + ((page - 1) * perPage)}</td>
 
               {!isLucknow && <td>{r.district}</td>}
+              {isLucknow && <td>{r.range_fore}</td>}
+              {isLucknow && <td>{r.name_of_co}</td>}
+
               <td>{r.latitude}</td>
               <td>{r.longitude}</td>
               <td>{r.habitat}</td>

@@ -12,9 +12,11 @@ export default function SarusReport() {
   const [params] = useSearchParams();
   const table = params.get("table");
 
+
   const [rows, setRows] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [charts, setCharts] = useState({});
+  const [totalRows, setTotalRows] = useState(0);
   const [total, setTotal] = useState(0);
 
   const [page, setPage] = useState(1);
@@ -33,31 +35,34 @@ export default function SarusReport() {
   }, [table]);
 
   /* report */
-  
+
   useEffect(() => {
     if (!table) return;
-  
+
     const q = new URLSearchParams({
       table,
       page,
       per_page: perPage
     });
-  
+
     if (district) q.append("district", district);
-  
+
     fetch(`${API}/report?${q}`)
       .then(r => r.json())
       .then(d => {
         setRows(d.rows || []);
-        setTotal(d.total || 0);
+        setTotalRows(d.totalRows || 0);  // ← pagination
+        setTotal(d.total || 0);          // ← sarus sum
         setCharts(d.charts || {});
       });
-  
-  }, [table, page, perPage, district]);
-  
-  
 
-  const totalPages = Math.ceil(total / perPage);
+
+
+  }, [table, page, perPage, district]);
+
+
+
+  const totalPages = Math.ceil(totalRows / perPage);
 
 
   const chartData =
@@ -88,30 +93,30 @@ export default function SarusReport() {
       <div className="total">Total Sarus Count: {total}</div>
 
       <div className="layout">
-      <div className="chart-pane">
-  {isLucknow ? (
-    <>
-      <SarusPieChart
-        title="Adults / Juveniles / Nests"
-        charts={charts.population}
-      />
-      <SarusPieChart
-        title="Sarus Count by Habitat"
-        charts={charts.habitat}
-        type="habitat"
-      />
-    </>
-  ) : (
-    <SarusBarChart
-      charts={
-        district
-          ? charts.site   // if you add site aggregation later
-          : charts.district
-      }
-      mode={district ? "site" : "district"}
-    />
-  )}
-</div>
+        <div className="chart-pane">
+          {isLucknow ? (
+            <>
+              <SarusPieChart
+                title="Adults / Juveniles / Nests"
+                charts={charts.population}
+              />
+              <SarusPieChart
+                title="Sarus Count by Habitat"
+                charts={charts.habitat}
+                type="habitat"
+              />
+            </>
+          ) : (
+            <SarusBarChart
+              charts={
+                district
+                  ? charts.site   // if you add site aggregation later
+                  : charts.district
+              }
+              mode={district ? "site" : "district"}
+            />
+          )}
+        </div>
 
 
 
@@ -124,13 +129,13 @@ export default function SarusReport() {
             isLucknow={isLucknow}
           />
 
-{rows.length > 0 && totalPages > 1 && (
-  <Pagination
-    page={page}
-    totalPages={totalPages}
-    onChange={setPage}
-  />
-)}
+          {rows.length > 0 && totalPages > 1 && (
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              onChange={setPage}
+            />
+          )}
 
 
 
