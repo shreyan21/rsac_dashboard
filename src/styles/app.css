@@ -5,100 +5,50 @@ body {
   padding: 0;
 }
 
+/* ================= HEADER ================= */
 
 .rsac-header {
-    position: sticky;   /* ADD THIS */
-    top: 0;             /* ADD THIS */
-    z-index: 1000;      /* ADD THIS */
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: white;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    padding: 8px 10px;
-    flex-wrap: wrap;
-  
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 8px 12px;
 }
 
 .rsac-logo {
   width: 50px;
   height: auto;
-  flex-shrink: 0;
 }
+
 .rsac-header h1 {
   font-size: 1rem;
   font-weight: bold;
   color: #003366;
   margin: 0;
-  text-align: left;
-  flex: 1;
-}
-@media (max-width: 600px) {
-  rsac-header {
-    justify-content: flex-start;
-  }
-
-  rsac-header h1 {
-    font-size: 0.9rem;
-  }
 }
 
-.layout {
-  display: grid;
-  grid-template-columns: 28% 72%;
-  gap: 16px;
-  padding: 10px;
+/* ================= CONTROLS ================= */
+
+.controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0;
+  flex-wrap: wrap;
 }
-
-
-
-.chart-pane {
-  background: white;
-  padding: 10px;
-  height: calc(100vh - 200px);
-  overflow: auto;
-}
-
 
 select,
 button {
   font-size: 0.8rem;
   padding: 5px 8px;
-  flex-shrink: 0;
-}
-.table-wrap {
-  flex: 1;
-  overflow-y: auto;          /* ensure vertical scroll */
-  max-height: 70vh;          /* important */
 }
 
-th:first-child,
-    td:first-child {
-      width: 60px;
-      font-weight: 600;
-    }
-
-
-
-.controls {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  margin: 10px 0;
-}
-
-
-
-.table-pane {
-  background: white;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;   /* important */
-}
-
+/* ================= TOTAL ================= */
 
 .total {
   text-align: center;
@@ -108,6 +58,47 @@ th:first-child,
   margin: 8px 0;
 }
 
+/* ================= LAYOUT ================= */
+
+.layout {
+  display: flex;
+  gap: 20px;
+  padding: 10px;
+  height: calc(100vh - 180px);
+}
+
+/* ================= CHART ================= */
+
+.chart-pane {
+  flex: 0 0 40%;
+  height: 100%;
+  overflow-y: auto;   /* allow vertical scroll ONLY */
+  padding: 10px;
+  background: white;
+  border-radius: 6px;
+}
+
+/* keep chart width stable */
+.chart-pane canvas {
+  width: 100% !important;
+}
+
+/* ================= TABLE ================= */
+
+.table-pane {
+  flex: 1;
+  background: white;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.table-wrap {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* ================= TABLE STYLING ================= */
 
 table {
   width: 100%;
@@ -123,19 +114,27 @@ th {
   white-space: nowrap;
   position: sticky;
   top: 0;
-  z-index: 10;   /* increase */
+  z-index: 20;
 }
-
 
 td, th {
   border: 1px solid #ddd;
   padding: 4px;
 }
 
+th:first-child,
+td:first-child {
+  width: 60px;
+  font-weight: 600;
+}
+
+/* ================= PAGINATION ================= */
+
 .pagination {
+  display: flex;
   justify-content: center;
-      flex-wrap: wrap;
-      margin: 8px 0;
+  margin: 8px 0;
+  flex-wrap: wrap;
 }
 
 .pagination button.active {
