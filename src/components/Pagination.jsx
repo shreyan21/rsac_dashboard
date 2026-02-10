@@ -1,20 +1,47 @@
 export default function Pagination({ page, totalPages, onChange }) {
-  const pages = Array.from({ length: totalPages }, (_, i) => i + 1)
-    .slice(Math.max(0, page - 3), page + 2);
+  if (totalPages <= 1) return null;
 
   return (
-    <div className="pagination">
-      <button disabled={page === 1} onClick={() => onChange(page - 1)}>Prev</button>
-      {pages.map(p => (
-        <button
-          key={p}
-          className={p === page ? "active" : ""}
-          onClick={() => onChange(p)}
-        >
-          {p}
-        </button>
-      ))}
-      <button disabled={page === totalPages} onClick={() => onChange(page + 1)}>Next</button>
+    <div style={{
+      display: "flex",
+      justifyContent: "center",
+      gap: "8px",
+      marginTop: "20px"
+    }}>
+      <button
+        disabled={page === 1}
+        onClick={() => onChange(page - 1)}
+        style={{
+          padding: "6px 12px",
+          borderRadius: "6px",
+          border: "1px solid #ccc",
+          background: "#f5f5f5"
+        }}
+      >
+        Prev
+      </button>
+
+      <span style={{
+        padding: "6px 12px",
+        background: "#0d3b66",
+        color: "#fff",
+        borderRadius: "6px"
+      }}>
+        {page}
+      </span>
+
+      <button
+        disabled={page === totalPages}
+        onClick={() => onChange(page + 1)}
+        style={{
+          padding: "6px 12px",
+          borderRadius: "6px",
+          border: "1px solid #ccc",
+          background: "#f5f5f5"
+        }}
+      >
+        Next
+      </button>
     </div>
   );
 }

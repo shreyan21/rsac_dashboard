@@ -15,7 +15,6 @@ export default function SarusReport() {
   const [params] = useSearchParams();
   const table = params.get("table");
 
-
   const [rows, setRows] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [charts, setCharts] = useState({});
@@ -28,7 +27,7 @@ export default function SarusReport() {
 
   const isLucknow = table === "sarus_lucknow_population";
 
-
+  /* ================= FETCH ================= */
 
   useEffect(() => {
     if (!table) return;
@@ -37,163 +36,190 @@ export default function SarusReport() {
       .then(setDistricts);
   }, [table]);
 
-  /* report */
-
   useEffect(() => {
-    if (!table) return;
+  if (!table) return;
 
-    const q = new URLSearchParams({
-      table,
-      page,
-      per_page: perPage
+  const q = new URLSearchParams();
+  q.append("table", table);
+
+  if (!isLucknow) {
+    q.append("page", page);
+    q.append("per_page", perPage);
+  }
+
+  if (district) {
+    q.append("district", district);
+  }
+
+  fetch(`${API}/report?${q.toString()}`)
+    .then(r => r.json())
+    .then(d => {
+      setRows(d.rows || []);
+      setTotalRows(d.totalRows || 0);
+      setTotal(d.total || 0);
+      setCharts(d.charts || {});
     });
 
-    if (district) q.append("district", district);
-
-    fetch(`${API}/report?${q}`)
-      .then(r => r.json())
-      .then(d => {
-        setRows(d.rows || []);
-        setTotalRows(d.totalRows || 0);  // ← pagination
-        setTotal(d.total || 0);          // ← sarus sum
-        setCharts(d.charts || {});
-      });
+}, [table, page, perPage, district]);
 
 
+const totalPages = isLucknow ? 1 : Math.ceil(totalRows / perPage);
 
-  }, [table, page, perPage, district]);
+  /* ================= PDF EXPORT ================= */
 
-
-
-  const totalPages = Math.ceil(totalRows /perPage);
-
-
-  const chartData =
-    district && charts?.site?.length
-      ? charts.site
-      : !district && charts?.district?.length
-        ? charts.district
-        : [];
   const handlePdfExport = async () => {
-    // Fetch FULL data (no pagination)
-    const q = new URLSearchParams({
-      table
-    });
 
+    const q = new URLSearchParams({ table });
     if (district) q.append("district", district);
 
-    const res = await fetch(`${API}/report?${q.toString()}`);
-    const fullDataResponse = await res.json();
-    const fullRows = fullDataResponse.rows || [];
+    const res = await fetch(`${API}/report?${q}`);
+    const fullData = await res.json();
+    const fullRows = fullData.rows || [];
+    const chartData = district ? fullData.charts.site : fullData.charts.district;
 
     const doc = new jsPDF("landscape", "pt", "a4");
-
-
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
-
+let chartStartY=130;
     /* ================= HEADER ================= */
 
     const logoImg = new Image();
     logoImg.src = "http://localhost:5000/logo.jpg";
-
     await new Promise(resolve => {
       logoImg.onload = resolve;
       logoImg.onerror = resolve;
     });
 
-    if (logoImg.complete && logoImg.naturalWidth !== 0) {
+    if (logoImg.complete) {
       doc.addImage(logoImg, "JPEG", 40, 20, 50, 50);
     }
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
     doc.setTextColor(0, 51, 102);
-    doc.text(
-      "Remote Sensing Applications Centre, Uttar Pradesh",
-      100,
-      35
-    );
+    doc.text("Remote Sensing Applications Centre, Uttar Pradesh", 100, 35);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(13);
     doc.text("Lucknow, Uttar Pradesh", 100, 55);
 
     doc.setFontSize(14);
-    doc.text("Sarus Census Report", pageWidth / 2, 85, {
-      align: "center"
-    });
+    doc.text("Sarus Census Report", pageWidth / 2, 85, { align: "center" });
 
     doc.setFontSize(14);
-    doc.setTextColor(0, 51, 102);
-    doc.text(
-      `TOTAL SARUS COUNT : ${total}`,
-      pageWidth / 2,
-      105,
-      { align: "center" }
+    doc.text(`TOTAL SARUS COUNT : ${total}`, pageWidth / 2, 105, { align: "center" });
+
+
+/* ================= CLEAN HORIZONTAL BAR CHART (FROM FRONTEND) ================= */
+
+if (!isLucknow) {
+
+  const canvas = document.querySelector(".chart-pane canvas");
+
+  if (canvas) {
+
+    const img = canvas.toDataURL("image/png", 1.0);
+
+    const imgWidth = pageWidth - 100;
+    const imgHeight = 420;
+
+    doc.addImage(
+      img,
+      "PNG",
+      50,
+      130,
+      imgWidth,
+      imgHeight
     );
+  }
 
-    /* ================= CHART IMAGE ================= */
+}
 
-    const canvas = document.querySelector("canvas");
-    let chartY = 130;
 
-    if (canvas) {
-      const img = canvas.toDataURL("image/png", 1.0);
-      const chartWidth = pageWidth - 120;
-      const chartHeight = 400;
+    /* ================= LUCKNOW PIE PAGE ================= */
 
-      doc.addImage(img, "PNG", 60, chartY, chartWidth, chartHeight);
-      chartY += chartHeight + 40;
+    if (isLucknow) {
+
+      doc.addPage();
+
+      const canvases = document.querySelectorAll(".chart-pane canvas");
+
+      if (canvases.length >= 2) {
+
+        const leftImg = canvases[0].toDataURL("image/png");
+        const rightImg = canvases[1].toDataURL("image/png");
+
+        const chartWidth = (pageWidth - 140) / 2;
+        const chartHeight = pageHeight - 200;
+
+        doc.setFontSize(14);
+        doc.setTextColor(0, 51, 102);
+        doc.text("Lucknow Population Overview", pageWidth / 2, 60, { align: "center" });
+
+        doc.addImage(leftImg, "PNG", 60, 90, chartWidth, chartHeight);
+        doc.addImage(rightImg, "PNG", 80 + chartWidth, 90, chartWidth, chartHeight);
+      }
     }
 
     /* ================= TABLE ================= */
 
+if (chartStartY > pageHeight - 200) {
+  doc.addPage();
+  chartStartY = 60;
+}
+
     const headers = Object.keys(fullRows[0] || {}).filter(h => h !== "gid");
 
-    const tableHead = [
-      ["SNo", ...headers.map(h => h.replace(/_/g, " ").toUpperCase())]
-    ];
-
-    const tableBody = fullRows.map((row, idx) => [
-      idx + 1,
-      ...headers.map(h => row[h] ?? "")
-    ]);
+    const formattedHeaders = headers.map(h => {
+      const key = h.toLowerCase();
+      if (key === "range_fore") return "RANGE FOREST";
+      if (key === "name_of_co") return "NAME OF COLONY";
+      if (key === "sarus_count") return "SARUS COUNT";
+      return h.replace(/_/g, " ").toUpperCase();
+    });
+    doc.addPage()
 
     autoTable(doc, {
-      head: tableHead,
-      body: tableBody,
-      startY: chartY,
+      head: [["SNo", ...formattedHeaders]],
+      body: fullRows.map((row, idx) => [
+        idx + 1,
+        ...headers.map(h => row[h] ?? "")
+      ]),
+      startY: 60,
       theme: "grid",
       styles: {
-        fontSize: 9,
+        fontSize: 8,
         cellPadding: 4,
-        valign: "middle",
         halign: "center"
       },
       headStyles: {
         fillColor: [0, 76, 153],
-        textColor: 255,
-        fontStyle: "bold"
+        textColor: 255
       },
       alternateRowStyles: {
         fillColor: [245, 248, 252]
-      },
-      margin: { left: 40, right: 40 },
-      didDrawPage: function () {
-        doc.setFontSize(10);
-        doc.setTextColor(100);
-        doc.text(
-          "Generated by RSAC UP",
-          pageWidth / 2,
-          pageHeight - 20,
-          { align: "center" }
-        );
       }
     });
 
+    /* ================= FINAL FOOTER ================= */
+
+    const indianDate = new Date().toLocaleDateString("en-GB");
+    const finalPage = doc.getNumberOfPages();
+    doc.setPage(finalPage);
+
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text(
+      `Generated by RSAC UP • ${indianDate}`,
+      pageWidth / 2,
+      pageHeight - 20,
+      { align: "center" }
+    );
+
     doc.save(`${table}_report.pdf`);
   };
+
+  /* ================= UI ================= */
 
   return (
     <>
@@ -209,13 +235,7 @@ export default function SarusReport() {
           {[10, 25, 50].map(n => <option key={n} value={n}>{n} Rows</option>)}
         </select>
 
-        <button
-          className="btn btn-danger btn-sm"
-          onClick={handlePdfExport}
-        >
-          PDF
-        </button>
-
+        <button className="btn btn-danger btn-sm" onClick={handlePdfExport}>PDF</button>
 
         <a
           className="btn btn-success btn-sm"
@@ -234,7 +254,6 @@ export default function SarusReport() {
         >
           CSV
         </a>
-
       </div>
 
       <div className="total">Total Sarus Count: {total}</div>
@@ -243,49 +262,22 @@ export default function SarusReport() {
         <div className="chart-pane">
           {isLucknow ? (
             <>
-              <SarusPieChart
-                title="Adults / Juveniles / Nests"
-                charts={charts.population}
-              />
-              <SarusPieChart
-                title="Sarus Count by Habitat"
-                charts={charts.habitat}
-                type="habitat"
-              />
+              <SarusPieChart title="Adults / Juveniles / Nests" charts={charts.population} />
+              <SarusPieChart title="Sarus Count by Habitat" charts={charts.habitat} type="habitat" />
             </>
           ) : (
             <SarusBarChart
-              charts={
-                district
-                  ? charts.site   // if you add site aggregation later
-                  : charts.district
-              }
+              charts={district ? charts.site : charts.district}
               mode={district ? "site" : "district"}
             />
           )}
         </div>
 
-
-
-
         <div className="table-pane">
-          <SarusTable
-            rows={rows}
-            page={page}
-            perPage={perPage}
-            isLucknow={isLucknow}
-          />
-
+          <SarusTable rows={rows} page={page} perPage={perPage} isLucknow={isLucknow} />
           {rows.length > 0 && totalPages > 1 && (
-            <Pagination
-              page={page}
-              totalPages={totalPages}
-              onChange={setPage}
-            />
+            <Pagination page={page} totalPages={totalPages} onChange={setPage} />
           )}
-
-
-
         </div>
       </div>
     </>

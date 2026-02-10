@@ -1,108 +1,93 @@
+import React from "react";
+import {
+  Chart as ChartJS,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend
+} from "chart.js";
 import { Bar } from "react-chartjs-2";
 
-export default function SarusBarChart({ charts, mode }) {
-  if (!Array.isArray(charts) || charts.length === 0) {
-    return (
-      <div style={{ padding: "20px", textAlign: "center", color: "#888" }}>
-        No chart data available
-      </div>
-    );
-  }
-  const allZero = charts.every(d => Number(d.sarus_count || 0) === 0);
-  if (allZero) {
-    return (
-      <div style={emptyStyle}>
-        No Sarus count recorded for the selected district.
-      </div>
-    );
-  }
+ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
-  const labels =
-    mode === "site"
-      ? charts.map(d => d.site)
-      : charts.map(d => d.district);
+export default function SarusBarChart({ charts = [], mode }) {
+  if (!charts.length) return null;
 
-  const values = charts.map(d => Number(d.sarus_count || 0));
+  // Sort highest first
+  const sorted = [...charts].sort(
+    (a, b) => Number(b.sarus_count) - Number(a.sarus_count)
+  );
 
-  const barCount = charts.length;
+  const MAX_LABELS = 15;
 
-  // 🔥 Make bars thinner automatically if many districts
-  let barThickness = 16;
+  const limited = sorted.slice(0, MAX_LABELS);
 
-  if (barCount > 25) barThickness = 10;
-  if (barCount > 40) barThickness = 7;
-  if (barCount > 60) barThickness = 5;
+  const labels = limited.map(d =>
+    (mode === "site" ? d.site : d.district)
+      ?.replace(/\b\w/g, c => c.toUpperCase())
+  );
+
+  const values = limited.map(d => Number(d.sarus_count));
 
   const data = {
     labels,
     datasets: [
       {
-        label:
-          mode === "site"
-            ? "Sarus Count by Site"
-            : "Sarus Count by District",
+        label: "Sarus Count",
         data: values,
-        backgroundColor: "#4e79a7",
-        borderRadius: 3,
-        barThickness: barThickness
+        backgroundColor: "#0d3b66",  // professional blue
+        borderRadius: 4,
+        barThickness: 18
       }
     ]
   };
 
   const options = {
-    indexAxis: "y",
+    indexAxis: "y",  // HORIZONTAL
     responsive: true,
     maintainAspectRatio: false,
-
+    plugins: {
+      legend: { display: false }
+    },
     scales: {
       x: {
         beginAtZero: true,
-        ticks: {
-          precision: 0
+        title: {
+          display: true,
+          text: "Sarus Count",
+          font: { size: 14, weight: "bold" }
         },
-        grid: {
-          color: "#eee"
+        ticks: {
+          font: { size: 12 }
         }
       },
       y: {
-        ticks: {
-          autoSkip: false,
-          font: {
-            size: 11
-          }
+        title: {
+          display: true,
+          text: mode === "site" ? "Sites" : "Districts",
+          font: { size: 14, weight: "bold" }
         },
-        grid: {
-          display: false
+        ticks: {
+          font: { size: 11 }
         }
-      }
-    },
-
-    plugins: {
-      legend: {
-        display: false
       }
     }
   };
 
   return (
-    <div
-      style={{
-        height: "100%",     // 🔥 fill full chart pane
-        width: "100%"
-      }}
-    >
-      <Bar data={data} options={options} />
-    </div>
-  );
+  <div style={{ 
+    height: `${labels.length * 35}px`, 
+    minHeight: "400px",
+    width: "100%" 
+  }}>
+    <Bar data={data} options={options} />
+    {charts.length > MAX_LABELS && (
+      <div style={{ textAlign: "center", marginTop: "10px", color: "#666" }}>
+        Showing top {MAX_LABELS} of {charts.length} {mode === "site" ? "sites" : "districts"}.
+      </div>
+    )}
+  </div>
+);
+
 }
-const emptyStyle = {
-  height: "400px",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  fontSize: "15px",
-  fontWeight: 500,
-  color: "#666",
-  background: "#fff",
-  borderRadius: "6px"
-};
