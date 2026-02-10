@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 
 import "./chartSetup";
-import "./styles/app.css";
+
 
 import {
     Chart as ChartJS,

@@ -5,6 +5,7 @@ import SarusBarChart from "../components/SarusBarChart";
 import SarusPieChart from "../components/SarusPieChart";
 import SarusTable from "../components/SarusTable";
 import Pagination from "../components/Pagination";
+import "../styles/app.css";
 
 const API = "http://localhost:5000";
 

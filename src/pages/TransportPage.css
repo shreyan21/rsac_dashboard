@@ -1,0 +1,458 @@
+:root {
+  /* Government Slate Theme */
+  --primary: #1f3b4d;
+  /* deep slate blue for headings */
+  --primary-soft: #f4f6f9;
+  /* light, paper-like background */
+  --accent: #0b7285;
+  /* teal accent for numbers */
+  --accent-soft: #e3f2f7;
+  /* soft teal tint */
+  --card-border: rgba(34, 58, 80, 0.08);
+  --card-shadow: 0 18px 32px rgba(15, 23, 42, 0.18);
+  --header-bg: rgba(246, 249, 252, 0.97);
+  --subnav-bg: rgba(244, 247, 251, 0.96);
+}
+
+/* ================= WRAPPER ================= */
+.transport-wrapper {
+  margin: 0;
+  background: radial-gradient(circle at top, #edf3fa 0, #f6f7fb 45%, #eef2f7 100%);
+  font-family: "Segoe UI", system-ui, sans-serif;
+  color: #222;
+  padding-top: 110px;
+}
+
+/* ================= HEADER ================= */
+
+.main-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--header-bg);
+  padding: 14px 18px;
+  border-bottom: 1px solid #d0d4da;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1200;
+  backdrop-filter: blur(14px);
+  transition: all 0.35s ease;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+.main-header img {
+  width: 50px;
+  transition: width 0.35s ease, transform 0.35s ease;
+  filter: drop-shadow(0 3px 6px rgba(15, 23, 42, 0.25));
+}
+
+.main-header.shrink {
+  padding: 6px 14px;
+  background: rgba(244, 247, 251, 0.92);
+  border-bottom: 1px solid #cfd4dc;
+  transform: translateY(0px);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+.main-header h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--primary);
+  transition: font-size 0.35s ease, letter-spacing 0.35s ease;
+}
+
+.main-header.shrink img {
+  width: 32px;
+  transform: translateY(-1px);
+}
+
+.main-header.shrink h2 {
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+}
+
+h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 0;
+}
+
+
+/* ================= SUB HEADER ================= */
+
+.sub-header {
+  position: sticky;
+  top: 64px;
+  z-index: 1100;
+  background: linear-gradient(to bottom,
+      rgba(248, 250, 252, 0.98),
+      rgba(235, 240, 245, 0.98));
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.04);
+}
+
+
+.sub-header h4 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: #1f3b4d;
+}
+
+
+/* ---------- Export button: Glass, illuminated ---------- */
+.btn-export {
+  background: radial-gradient(circle at top left,
+      rgba(20, 80, 130, 0.96),
+      rgba(12, 61, 102, 0.96));
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #fdfdfd;
+  font-size: 0.75rem;
+  padding: 7px 14px;
+  border-radius: 999px;
+  white-space: nowrap;
+  width: fit-content;
+  max-width: 180px;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow:
+    0 10px 22px rgba(10, 46, 82, 0.45),
+    0 0 0 1px rgba(5, 20, 36, 0.28);
+  backdrop-filter: blur(14px);
+  transition: 0.25s ease;
+}
+
+.btn-export span:first-child {
+  font-size: 0.85rem;
+}
+
+.btn-export span {
+  font-size: 0.9rem;
+}
+
+.btn-export:hover {
+  transform: translateY(-2px) scale(1.03);
+  background: radial-gradient(circle at top left,
+      rgba(26, 102, 163, 0.98),
+      rgba(16, 77, 129, 0.98));
+}
+
+.btn-export:active {
+  transform: translateY(0px) scale(0.99);
+  box-shadow:
+    0 8px 18px rgba(10, 46, 82, 0.55),
+    0 0 0 1px rgba(8, 35, 63, 0.36);
+}
+
+@media (min-width: 992px) {
+  .btn-export {
+    font-size: 0.82rem;
+    padding: 8px 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .btn-export {
+    font-size: 0.68rem;
+    max-width: 140px;
+    padding: 6px 10px;
+  }
+}
+
+/*================= WRAPPER ================= */
+
+
+
+/* ================= CONTAINER ================= */
+
+.main-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 30px 40px;
+}
+
+
+@media (max-width: 992px) {
+  .main-container {
+    padding: 25px 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .main-container {
+    padding: 20px 15px;
+  }
+}
+@media (max-width: 768px) {
+  .sub-header h4 {
+    font-size: 0.7rem;
+    text-align: center;
+  }
+
+  .btn-export {
+    font-size: 0.7rem;
+    padding: 6px 12px;
+  }
+}
+
+
+/* ================= SECTION LABEL ================= */
+
+.year-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px auto 10px;
+  width: calc(4 * 280px + 3 * 24px);
+  /* match card row width */
+}
+
+
+.year-pill {
+  padding: 4px 14px;
+  border-radius: 999px;
+  background: rgba(23, 52, 80, 0.08);
+  color: var(--primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.year-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right,
+      rgba(15, 23, 42, 0.35),
+      rgba(15, 23, 42, 0.05));
+}
+
+
+/* ================= GRID ================= */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 28px;
+  margin-bottom: 50px;
+}
+
+
+
+
+/* ================= ANALYTICS CARD ================= */
+
+
+
+/* Make text + chart aligned like old structure */
+
+.analytics-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+@media (max-width: 768px) {
+  .analytics-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .chart-box {
+    width: 100%;
+    height: 180px;
+  }
+}
+
+
+.analytics-content p {
+  margin: 4px 0;
+  font-size: 0.8rem;
+}
+
+
+.chart-box {
+  width: 50%;
+  height: 120px;
+  /* smaller, aligned */
+}
+
+
+
+.analytics-card p {
+  font-size: 12px;
+  margin: 4px 0;
+}
+
+
+
+.analytics-card h5 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  /* stronger bold */
+  color: #1f3b4d;
+  margin-bottom: 10px;
+}
+
+.metric-card h5 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1f3b4d;
+  margin-bottom: 16px;
+}
+
+
+.chart-box canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ================= METRIC CARD ================= */
+.metric-card {
+  background: linear-gradient(145deg, #f9fbfd, #eef2f7);
+  border-radius: 18px;
+  padding: 22px 20px;
+  box-shadow: 0 16px 28px rgba(15, 23, 42, 0.16);
+  min-height: 210px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center;
+  transition: all 0.35s ease;
+}
+
+.analytics-card {
+  background: linear-gradient(145deg, #f9fbfd, #eef2f7);
+  border-radius: 18px;
+  padding: 22px 20px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.14);
+  min-height: 210px;
+  /* reduced */
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.3s ease;
+}
+
+
+.analytics-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.25);
+}
+
+
+
+.metric-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 24px 42px rgba(15, 23, 42, 0.28);
+}
+
+
+
+
+/* ================= METRIC STRUCTURE ================= */
+.metric-main {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0b7285;
+  margin-bottom: 4px;
+}
+
+.metric-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 18px;
+}
+
+.metric-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.metric-col .value {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1f3b4d;
+}
+
+.metric-col .sub {
+  font-size: 10px;
+  color: #64748b;
+  margin-top: 3px;
+}
+
+.metric-extra {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.extra-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #1f3b4d;
+  margin-bottom: 6px;
+}
+
+.extra-item {
+  font-size: 10px;
+  color: #475569;
+  margin-bottom: 4px;
+}
+
+
+
+
+
+/* Longest / Shortest Row */
+
+
+.metric-col {
+  flex: 1;
+}
+
+
+
+
+
+/* Bottom total */
+
+.metric-bottom {
+  margin-top: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #1f3b4d;
+}
+
+.metric-bottom span {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: #0b7285;
+  margin-top: 3px;
+}
+
+.chart-box {
+  height: 120px;
+  width: 100%;
+  margin-top: 10px;
+}

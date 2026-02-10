@@ -141,3 +141,88 @@ td:first-child {
   background: #3498db;
   color: white;
 }
+
+
+.rsac-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background: white;
+  border-bottom: 1px solid #ddd;
+}
+
+.rsac-header img {
+  width: 45px;
+}
+
+
+
+/* ================= WRAPPER ================= */
+
+
+/* ================= HEADER ================= */
+
+.main-header {
+  position: sticky;
+  top: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  background: rgba(246, 249, 252, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #d0d4da;
+}
+
+.main-header img {
+  width: 50px;
+}
+
+.main-header h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1f3b4d;
+}
+
+/* ================= SUB HEADER ================= */
+
+.sub-header {
+  position: sticky;
+  top: 78px;
+  z-index: 1100;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  padding: 12px 30px;
+  border-bottom: 1px solid #e2e6ea;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.sub-header h4 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #1f3b4d;
+}
+
+.btn-export {
+  position: absolute;
+  right: 30px;
+  background: #1f3b4d;
+  color: white;
+  border: none;
+  padding: 7px 16px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+/* ================= CONTAINER ================= */
+
+.main-container {
+  padding: 40px 60px;
+}
+
