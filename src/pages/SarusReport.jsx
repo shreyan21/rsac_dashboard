@@ -27,43 +27,45 @@ export default function SarusReport() {
 
   const isLucknow = table === "sarus_lucknow_population";
 
-  /* ================= FETCH ================= */
+  /* ================= FETCH DISTRICTS ================= */
 
   useEffect(() => {
     if (!table) return;
+
     fetch(`${API}/districts?table=${table}`)
-      .then(r => r.json())
+      .then(res => res.json())
       .then(setDistricts);
   }, [table]);
 
+  /* ================= FETCH REPORT ================= */
+
   useEffect(() => {
-  if (!table) return;
+    if (!table) return;
 
-  const q = new URLSearchParams();
-  q.append("table", table);
+    const q = new URLSearchParams();
+    q.append("table", table);
 
-  if (!isLucknow) {
-    q.append("page", page);
-    q.append("per_page", perPage);
-  }
+    if (!isLucknow) {
+      q.append("page", page);
+      q.append("per_page", perPage);
+    }
 
-  if (district) {
-    q.append("district", district);
-  }
+    if (district) {
+      q.append("district", district);
+    }
 
-  fetch(`${API}/report?${q.toString()}`)
-    .then(r => r.json())
-    .then(d => {
-      setRows(d.rows || []);
-      setTotalRows(d.totalRows || 0);
-      setTotal(d.total || 0);
-      setCharts(d.charts || {});
-    });
+    fetch(`${API}/report?${q.toString()}`)
+      .then(res => res.json())
+      .then(data => {
+        setRows(data.rows || []);
+        setTotalRows(data.totalRows || 0);
+        setTotal(data.total || 0);
+        setCharts(data.charts || {});
+      });
 
-}, [table, page, perPage, district]);
+  }, [table, page, perPage, district]);
 
-
-const totalPages = isLucknow ? 1 : Math.ceil(totalRows / perPage);
+  const totalPages = isLucknow ? 1 : Math.ceil(totalRows / perPage);
 
   /* ================= PDF EXPORT ================= */
 
@@ -72,27 +74,16 @@ const totalPages = isLucknow ? 1 : Math.ceil(totalRows / perPage);
     const q = new URLSearchParams({ table });
     if (district) q.append("district", district);
 
-    const res = await fetch(`${API}/report?${q}`);
+    const res = await fetch(`${API}/report?${q.toString()}`);
     const fullData = await res.json();
     const fullRows = fullData.rows || [];
-    const chartData = district ? fullData.charts.site : fullData.charts.district;
+    const fullCharts = fullData.charts || {};
 
     const doc = new jsPDF("landscape", "pt", "a4");
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
-let chartStartY=130;
-    /* ================= HEADER ================= */
 
-    const logoImg = new Image();
-    logoImg.src = "http://localhost:5000/logo.jpg";
-    await new Promise(resolve => {
-      logoImg.onload = resolve;
-      logoImg.onerror = resolve;
-    });
-
-    if (logoImg.complete) {
-      doc.addImage(logoImg, "JPEG", 40, 20, 50, 50);
-    }
+    /* ===== HEADER ===== */
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
@@ -109,108 +100,57 @@ let chartStartY=130;
     doc.setFontSize(14);
     doc.text(`TOTAL SARUS COUNT : ${total}`, pageWidth / 2, 105, { align: "center" });
 
+    /* ===== CHART ===== */
 
-/* ================= CLEAN HORIZONTAL BAR CHART (FROM FRONTEND) ================= */
-
-if (!isLucknow) {
-
-  const canvas = document.querySelector(".chart-pane canvas");
-
-  if (canvas) {
-
-    const img = canvas.toDataURL("image/png", 1.0);
-
-    const imgWidth = pageWidth - 100;
-    const imgHeight = 420;
-
-    doc.addImage(
-      img,
-      "PNG",
-      50,
-      130,
-      imgWidth,
-      imgHeight
-    );
-  }
-
-}
-
-
-    /* ================= LUCKNOW PIE PAGE ================= */
-
-    if (isLucknow) {
-
-      doc.addPage();
-
-      const canvases = document.querySelectorAll(".chart-pane canvas");
-
-      if (canvases.length >= 2) {
-
-        const leftImg = canvases[0].toDataURL("image/png");
-        const rightImg = canvases[1].toDataURL("image/png");
-
-        const chartWidth = (pageWidth - 140) / 2;
-        const chartHeight = pageHeight - 200;
-
-        doc.setFontSize(14);
-        doc.setTextColor(0, 51, 102);
-        doc.text("Lucknow Population Overview", pageWidth / 2, 60, { align: "center" });
-
-        doc.addImage(leftImg, "PNG", 60, 90, chartWidth, chartHeight);
-        doc.addImage(rightImg, "PNG", 80 + chartWidth, 90, chartWidth, chartHeight);
+    if (!isLucknow) {
+      const canvas = document.querySelector(".chart-pane canvas");
+      if (!canvas) {
+        console.log("Chart not found in DOM");
+      }
+            if (canvas) {
+        const img = canvas.toDataURL("image/png");
+        doc.addImage(img, "PNG", 50, 130, pageWidth - 100, 420);
       }
     }
 
-    /* ================= TABLE ================= */
+    if (isLucknow) {
+      const canvases = document.querySelectorAll(".chart-pane canvas");
+      if (canvases.length >= 2) {
+        const leftImg = canvases[0].toDataURL("image/png");
+        const rightImg = canvases[1].toDataURL("image/png");
 
-if (chartStartY > pageHeight - 200) {
-  doc.addPage();
-  chartStartY = 60;
-}
+        const chartWidth = (pageWidth - 120) / 2;
+        const chartHeight = 320;
+
+        doc.addImage(leftImg, "PNG", 60, 130, chartWidth, chartHeight);
+        doc.addImage(rightImg, "PNG", 80 + chartWidth, 130, chartWidth, chartHeight);
+      }
+    }
+
+    /* ===== TABLE ===== */
+
+    doc.addPage();
 
     const headers = Object.keys(fullRows[0] || {}).filter(h => h !== "gid");
 
-    const formattedHeaders = headers.map(h => {
-      const key = h.toLowerCase();
-      if (key === "range_fore") return "RANGE FOREST";
-      if (key === "name_of_co") return "NAME OF COLONY";
-      if (key === "sarus_count") return "SARUS COUNT";
-      return h.replace(/_/g, " ").toUpperCase();
-    });
-    doc.addPage()
-
     autoTable(doc, {
-      head: [["SNo", ...formattedHeaders]],
-      body: fullRows.map((row, idx) => [
-        idx + 1,
+      head: [["SNo", ...headers.map(h => h.replace(/_/g, " ").toUpperCase())]],
+      body: fullRows.map((row, i) => [
+        i + 1,
         ...headers.map(h => row[h] ?? "")
       ]),
       startY: 60,
       theme: "grid",
-      styles: {
-        fontSize: 8,
-        cellPadding: 4,
-        halign: "center"
-      },
-      headStyles: {
-        fillColor: [0, 76, 153],
-        textColor: 255
-      },
-      alternateRowStyles: {
-        fillColor: [245, 248, 252]
-      }
+      styles: { fontSize: 8, halign: "center" },
+      headStyles: { fillColor: [0, 76, 153], textColor: 255 }
     });
 
-    /* ================= FINAL FOOTER ================= */
-
-    const indianDate = new Date().toLocaleDateString("en-GB");
-    const finalPage = doc.getNumberOfPages();
-    doc.setPage(finalPage);
+    const date = new Date().toLocaleDateString("en-GB");
 
     doc.setFontSize(10);
     doc.setTextColor(100);
     doc.text(
-      `Generated by RSAC UP • ${indianDate}`,
+      `Generated by RSAC UP • ${date}`,
       pageWidth / 2,
       pageHeight - 20,
       { align: "center" }
@@ -226,25 +166,72 @@ if (chartStartY > pageHeight - 200) {
       <Header />
 
       <div className="controls">
-        <select value={district} onChange={e => { setPage(1); setDistrict(e.target.value); }}>
-          <option value="">All Districts</option>
-          {districts.map(d => <option key={d} value={d}>{d}</option>)}
-        </select>
 
-        <select value={perPage} onChange={e => { setPage(1); setPerPage(+e.target.value); }}>
-          {[10, 25, 50].map(n => <option key={n} value={n}>{n} Rows</option>)}
-        </select>
-
-        <button className="btn btn-danger btn-sm" onClick={handlePdfExport}>PDF</button>
-
-        <a
-          className="btn btn-success btn-sm"
-          href={`${API}/export?table=${table}&format=excel${district ? `&district=${district}` : ""}`}
-          target="_blank"
-          rel="noopener noreferrer"
+        <select
+          value={district}
+          onChange={e => {
+            setPage(1);
+            setDistrict(e.target.value);
+          }}
         >
-          Excel
-        </a>
+          <option value="">All Districts</option>
+          {districts.map(d => (
+            <option key={d} value={d}>{d}</option>
+          ))}
+        </select>
+
+        {!isLucknow && (
+          <select
+            value={perPage}
+            onChange={e => {
+              setPage(1);
+              setPerPage(+e.target.value);
+            }}
+          >
+            {[10, 25, 50].map(n => (
+              <option key={n} value={n}>{n} Rows</option>
+            ))}
+          </select>
+        )}
+
+        <button className="btn btn-danger btn-sm" onClick={handlePdfExport}>
+          PDF
+        </button>
+        <button
+  className="btn btn-success btn-sm"
+  onClick={async () => {
+
+    const canvas = document.querySelector(".chart-pane canvas");
+    let chartImage = null;
+
+    if (canvas) {
+      chartImage = canvas.toDataURL("image/png");
+    }
+
+    const res = await fetch(`${API}/export`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        format: "excel",
+        table,
+        district,
+        chartImage
+      })
+    });
+
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "RSAC_Sarus_Report.xlsx";
+    a.click();
+  }}
+>
+  Excel
+</button>
 
         <a
           className="btn btn-secondary btn-sm"
@@ -254,11 +241,15 @@ if (chartStartY > pageHeight - 200) {
         >
           CSV
         </a>
+
       </div>
 
-      <div className="total">Total Sarus Count: {total}</div>
+      <div className="total">
+        Total Sarus Count: {total}
+      </div>
 
       <div className="layout">
+
         <div className="chart-pane">
           {isLucknow ? (
             <>
@@ -267,18 +258,20 @@ if (chartStartY > pageHeight - 200) {
             </>
           ) : (
             <SarusBarChart
-              charts={district ? charts.site : charts.district}
-              mode={district ? "site" : "district"}
-            />
+  charts={district ? charts.site : charts.district}
+  mode={district ? "site" : "district"}
+/>
+
           )}
         </div>
 
         <div className="table-pane">
           <SarusTable rows={rows} page={page} perPage={perPage} isLucknow={isLucknow} />
-          {rows.length > 0 && totalPages > 1 && (
+          {!isLucknow && rows.length > 0 && totalPages > 1 && (
             <Pagination page={page} totalPages={totalPages} onChange={setPage} />
           )}
         </div>
+
       </div>
     </>
   );

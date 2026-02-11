@@ -19,7 +19,7 @@ export default function SarusBarChart({ charts = [], mode }) {
     (a, b) => Number(b.sarus_count) - Number(a.sarus_count)
   );
 
-  const MAX_LABELS = 15;
+  const MAX_LABELS = 20;
 
   const limited = sorted.slice(0, MAX_LABELS);
 
@@ -43,46 +43,47 @@ export default function SarusBarChart({ charts = [], mode }) {
     ]
   };
 
-  const options = {
-    indexAxis: "y",  // HORIZONTAL
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false }
-    },
-    scales: {
-      x: {
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: "Sarus Count",
-          font: { size: 14, weight: "bold" }
-        },
-        ticks: {
-          font: { size: 12 }
-        }
+  const maxValue = Math.max(...values);
+
+const options = {
+  indexAxis: "y",
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false }
+  },
+  scales: {
+    x: {
+      beginAtZero: true,
+      suggestedMax: Math.ceil(maxValue * 1.2),   // 👈 fixed scaling
+      title: {
+        display: true,
+        text: "Sarus Count",
+        font: { size: 14, weight: "bold" }
       },
-      y: {
-        title: {
-          display: true,
-          text: mode === "site" ? "Sites" : "Districts",
-          font: { size: 14, weight: "bold" }
-        },
-        ticks: {
-          font: { size: 11 }
-        }
+      ticks: {
+        font: { size: 12 }
+      }
+    },
+    y: {
+      title: {
+        display: true,
+        text: mode === "site" ? "Sites" : "Districts",
+        font: { size: 14, weight: "bold" }
+      },
+      ticks: {
+        font: { size: 11 }
       }
     }
-  };
+  }
+};
 
-  return (
+return (
   <div
     style={{
-      height: "520px",
-      width: "100%",
+      flex: 1,
       display: "flex",
-      flexDirection: "column",
-      justifyContent: "space-between"
+      flexDirection: "column"
     }}
   >
     <div style={{ flex: 1 }}>
@@ -104,6 +105,7 @@ export default function SarusBarChart({ charts = [], mode }) {
     )}
   </div>
 );
+
 
 
 }

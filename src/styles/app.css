@@ -65,6 +65,7 @@ button {
   gap: 20px;
   padding: 10px;
   height: calc(100vh - 180px);
+  align-items: stretch;
 }
 
 /* ================= CHART ================= */
@@ -76,6 +77,7 @@ button {
   border-radius: 6px;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 
