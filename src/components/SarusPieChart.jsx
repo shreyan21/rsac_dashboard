@@ -26,7 +26,7 @@ export default function SarusPieChart({ title, charts, type }) {
         borderRadius: "10px",
         padding: "15px",
         boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
-        minHeight: "350px",
+        minHeight: "300px",
         display: "flex",
         flexDirection: "column"
       }}
@@ -55,6 +55,7 @@ export default function SarusPieChart({ title, charts, type }) {
           options={{
             responsive: true,
             maintainAspectRatio: false,
+            aspectRatio:1.2,
             plugins: {
               legend: {
                 position: "bottom",

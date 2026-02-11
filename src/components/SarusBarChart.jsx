@@ -12,8 +12,49 @@ import { Bar } from "react-chartjs-2";
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 export default function SarusBarChart({ charts = [], mode }) {
-  if (!charts.length) return null;
-
+  const totalCount = charts.reduce(
+    (sum, item) => sum + Number(item.sarus_count || 0),
+    0
+  );
+  
+  if (totalCount === 0) {
+    return (
+      <div
+        style={{
+          height: "350px",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          background: "#f9fafc",
+          borderRadius: "10px",
+          border: "1px solid #e2e8f0"
+        }}
+      >
+        <div
+          style={{
+            fontSize: "18px",
+            fontWeight: 600,
+            color: "#003366",
+            marginBottom: "8px"
+          }}
+        >
+          No Sarus Recorded
+        </div>
+  
+        <div
+          style={{
+            fontSize: "14px",
+            color: "#555"
+          }}
+        >
+          The total Sarus count is zero for the selected criteria.
+        </div>
+      </div>
+    );
+  }
+  
+  
   // Sort highest first
   const sorted = [...charts].sort(
     (a, b) => Number(b.sarus_count) - Number(a.sarus_count)
@@ -91,19 +132,22 @@ return (
       <Bar data={data} options={options} />
     </div>
 
-    {charts.length > MAX_LABELS && (
-      <div
-        style={{
-          textAlign: "center",
-          fontSize: "12px",
-          color: "#666",
-          padding: "6px 0"
-        }}
-      >
-        Showing top {MAX_LABELS} of {charts.length}{" "}
-        {mode === "site" ? "sites" : "districts"}.
-      </div>
-    )}
+    <div
+  style={{
+    textAlign: "center",
+    fontSize: "13px",
+    color: "#444",
+    padding: "10px 0",
+    fontWeight: 500
+  }}
+>
+  {mode === "district"
+    ? "Showing Top Districts"
+    : "Showing Top Habitats"}
+</div>
+
+
+
   </div>
 );
 

@@ -82,6 +82,15 @@ export default function SarusReport() {
     const doc = new jsPDF("landscape", "pt", "a4");
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
+    const logo = new Image();
+    logo.src = "/logo.jpg";
+
+    await new Promise(resolve => {
+      logo.onload = resolve;
+    });
+
+    doc.addImage(logo, "JPEG", 40, 20, 50, 50);
+
 
     /* ===== HEADER ===== */
 
@@ -95,25 +104,12 @@ export default function SarusReport() {
     doc.text("Lucknow, Uttar Pradesh", 100, 55);
 
     doc.setFontSize(14);
-    doc.text("Sarus Census Report", pageWidth / 2, 85, { align: "center" });
+  
+
+    doc.text(`Sarus Census Report for ${table.charAt(0).toUpperCase() + table.slice(1).replace('_', ' ').replace(/_/g, '/')}`, pageWidth / 2, 85, { align: "center" });
     doc.setFontSize(14);
     doc.setTextColor(0);
-    doc.text(
-      `TOTAL SARUS COUNT : ${fullData.total}`,
-      pageWidth / 2,
-      105,
-      { align: "center" }
-    );
 
-    doc.setFontSize(14);
-    doc.text(
-      district
-        ? `Showing data for ${district}`
-        : `Showing Top 20 of 75 districts`,
-      pageWidth / 2,
-      120,
-      { align: "center" }
-    );
 
 
 
