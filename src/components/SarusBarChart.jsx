@@ -24,9 +24,10 @@ export default function SarusBarChart({ charts = [], mode }) {
   const limited = sorted.slice(0, MAX_LABELS);
 
   const labels = limited.map(d =>
-    (mode === "site" ? d.site : d.district)
-      ?.replace(/\b\w/g, c => c.toUpperCase())
+    (d.district || "")
+      .replace(/\b\w/g, c => c.toUpperCase())
   );
+  
 
   const values = limited.map(d => Number(d.sarus_count));
 
@@ -68,7 +69,7 @@ const options = {
     y: {
       title: {
         display: true,
-        text: mode === "site" ? "Sites" : "Districts",
+        text: mode === "habitat" ? "Habitat" : "Districts",
         font: { size: 14, weight: "bold" }
       },
       ticks: {

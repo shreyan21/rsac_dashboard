@@ -96,9 +96,26 @@ export default function SarusReport() {
 
     doc.setFontSize(14);
     doc.text("Sarus Census Report", pageWidth / 2, 85, { align: "center" });
+    doc.setFontSize(14);
+    doc.setTextColor(0);
+    doc.text(
+      `TOTAL SARUS COUNT : ${fullData.total}`,
+      pageWidth / 2,
+      105,
+      { align: "center" }
+    );
 
     doc.setFontSize(14);
-    doc.text(`TOTAL SARUS COUNT : ${total}`, pageWidth / 2, 105, { align: "center" });
+    doc.text(
+      district
+        ? `Showing data for ${district}`
+        : `Showing Top 20 of 75 districts`,
+      pageWidth / 2,
+      120,
+      { align: "center" }
+    );
+
+
 
     /* ===== CHART ===== */
 
@@ -107,7 +124,7 @@ export default function SarusReport() {
       if (!canvas) {
         console.log("Chart not found in DOM");
       }
-            if (canvas) {
+      if (canvas) {
         const img = canvas.toDataURL("image/png");
         doc.addImage(img, "PNG", 50, 130, pageWidth - 100, 420);
       }
@@ -131,7 +148,7 @@ export default function SarusReport() {
 
     doc.addPage();
 
-    const headers = Object.keys(fullRows[0] || {}).filter(h => h !== "gid");
+    const headers = Object.keys(fullRows[0] || {}).filter(h => h !== "gid" && h !== "site");
 
     autoTable(doc, {
       head: [["SNo", ...headers.map(h => h.replace(/_/g, " ").toUpperCase())]],
@@ -198,40 +215,40 @@ export default function SarusReport() {
           PDF
         </button>
         <button
-  className="btn btn-success btn-sm"
-  onClick={async () => {
+          className="btn btn-success btn-sm"
+          onClick={async () => {
 
-    const canvas = document.querySelector(".chart-pane canvas");
-    let chartImage = null;
+            const canvas = document.querySelector(".chart-pane canvas");
+            let chartImage = null;
 
-    if (canvas) {
-      chartImage = canvas.toDataURL("image/png");
-    }
+            if (canvas) {
+              chartImage = canvas.toDataURL("image/png");
+            }
 
-    const res = await fetch(`${API}/export`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        format: "excel",
-        table,
-        district,
-        chartImage
-      })
-    });
+            const res = await fetch(`${API}/export`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                format: "excel",
+                table,
+                district,
+                chartImage
+              })
+            });
 
-    const blob = await res.blob();
-    const url = window.URL.createObjectURL(blob);
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
 
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "RSAC_Sarus_Report.xlsx";
-    a.click();
-  }}
->
-  Excel
-</button>
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "RSAC_Sarus_Report.xlsx";
+            a.click();
+          }}
+        >
+          Excel
+        </button>
 
         <a
           className="btn btn-secondary btn-sm"
@@ -257,12 +274,19 @@ export default function SarusReport() {
               <SarusPieChart title="Sarus Count by Habitat" charts={charts.habitat} type="habitat" />
             </>
           ) : (
-            <SarusBarChart
-  charts={district ? charts.site : charts.district}
-  mode={district ? "site" : "district"}
-/>
+            charts.district &&
+            charts.district.length > 0 && (
+              <SarusBarChart
+                charts={charts.district}
+                mode={district ? "habitat" : "district"}
+              />
+            )
+          )
 
-          )}
+
+
+
+          }
         </div>
 
         <div className="table-pane">

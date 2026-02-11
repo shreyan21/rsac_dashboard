@@ -34,7 +34,7 @@ export default function SarusTable({ rows, page, perPage, isLucknow }) {
             <th>Longitude</th>
             <th>Habitat</th>
             <th>Sarus Count</th>
-            <th>Site</th>
+            {/* <th>Site</th> */}
             <th>Adults</th>
             <th>Juvenile</th>
             <th>Nests</th>
@@ -53,7 +53,7 @@ export default function SarusTable({ rows, page, perPage, isLucknow }) {
               <td>{r.longitude}</td>
               <td>{r.habitat}</td>
               <td>{r.sarus_count}</td>
-              <td>{r.site}</td>
+              {/* <td>{r.site}</td> */}
               <td>{r.adult ?? r.adults ?? 0}</td>
               <td>{r.juvenile ?? 0}</td>
               <td>{r.nests ?? 0}</td>
