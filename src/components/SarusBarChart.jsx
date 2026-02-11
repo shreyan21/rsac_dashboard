@@ -76,18 +76,34 @@ export default function SarusBarChart({ charts = [], mode }) {
   };
 
   return (
-  <div style={{ 
-    height: `${labels.length * 35}px`, 
-    minHeight: "400px",
-    width: "100%" 
-  }}>
-    <Bar data={data} options={options} />
+  <div
+    style={{
+      height: "520px",
+      width: "100%",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "space-between"
+    }}
+  >
+    <div style={{ flex: 1 }}>
+      <Bar data={data} options={options} />
+    </div>
+
     {charts.length > MAX_LABELS && (
-      <div style={{ textAlign: "center", marginTop: "10px", color: "#666" }}>
-        Showing top {MAX_LABELS} of {charts.length} {mode === "site" ? "sites" : "districts"}.
+      <div
+        style={{
+          textAlign: "center",
+          fontSize: "12px",
+          color: "#666",
+          padding: "6px 0"
+        }}
+      >
+        Showing top {MAX_LABELS} of {charts.length}{" "}
+        {mode === "site" ? "sites" : "districts"}.
       </div>
     )}
   </div>
 );
+
 
 }
