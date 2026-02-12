@@ -467,155 +467,86 @@ export default function TransportPage() {
 
     // ---------- DATASET-WISE TABLE SECTION ---------- //
     const data = await fetch(`${API}/dashboard`).then(r => r.json());
+    const dashboard = await fetch(`${API}/dashboard`).then(r => r.json());
 
-    for (const key in  data) {
-      const item = data[key]
-      if (y > 250) {
-        pdf.addPage();
-        y = 20;
-      }
-
-      const baseTitle = displayLabel(item.label || item.friendly || "Dataset");
-
-      let yearTag = "";
-      if (item.year === "2010") {
-        yearTag = " — 2010 (Baseline Layer)";
-      } else if (item.year === "2018") {
-        yearTag = " — 2018 (Updated Layer)";
-      } else if (item.year) {
-        yearTag = ` — ${item.year}`;
-      }
-
-      const title = baseTitle + yearTag;
-
-      pdf.setFont("helvetica", "bold");
-      pdf.setFontSize(11);
-      pdf.text(title, 14, y);
-      pdf.setFontSize(9);
-      pdf.setFont("helvetica", "normal");
-
-      const rows = [];
-
-      // ---------------- ONLY WHAT DASHBOARD SHOWS ----------------
-
-      // UP RTA Routes
-      if (item.rta_summary) {
-        const r = item.rta_summary;
-
-        rows.push(["Total Routes", format(r.total)]);
-        rows.push(["Districts Covered", format(r.districts)]);
-        rows.push(["Longest Route (km)", Math.round(r.longest)]);
-        rows.push(["Shortest Route (km)", Math.round(r.shortest)]);
-      }
-
-      // Ganga Cruise Route
-      if (item.ganga_cruise) {
-        const g = item.ganga_cruise;
-
-        rows.push(["Total Navigable Length (km)", Math.round(g.total_length_km)]);
-        rows.push(["Total Cruise Segments", format(g.total_routes)]);
-        rows.push(["Longest Stretch (km)", Math.round(g.longest_km)]);
-        rows.push(["Route Name", g.route_name]);
-      }
-
-      // Expressways Combined
-      if (item.expressways_combined) {
-        const e = item.expressways_combined;
-
-        rows.push(["Total Expressways", format(e.total)]);
-        rows.push(["Total Length (km)", Math.round(e.total_length)]);
-        rows.push(["Longest Expressway (km)", Math.round(e.longest)]);
-        rows.push(["Shortest Expressway (km)", Math.round(e.shortest)]);
-      }
-
-      // UP Roadways Routes
-      if (item.statistics && item.top_depots) {
-        const s = item.statistics;
-
-        rows.push(["Total Routes", format(item.total_routes)]);
-        rows.push(["Longest Route (km)", Math.round(s.longest)]);
-        rows.push(["Shortest Route (km)", Math.round(s.shortest)]);
-      }
-
-      // National Highway 2010
-      if (item.national_highway_2010) {
-        const nh = item.national_highway_2010;
-
-        rows.push(["Total Length (km)", Math.round(nh.total_length_km)]);
-        rows.push(["Longest Section (km)", Math.round(nh.longest_km)]);
-        rows.push(["Shortest Section (km)", Math.round(nh.shortest_km)]);
-      }
-
-      // State Highway 2010
-      if (item.state_highway_2010) {
-        const sh = item.state_highway_2010;
-
-        rows.push(["Total Length (km)", Math.round(sh.total_length_km)]);
-        rows.push(["Longest Section (km)", Math.round(sh.longest_km)]);
-        rows.push(["Shortest Section (km)", Math.round(sh.shortest_km)]);
-      }
-
-      // Railway Network 2010 (ONLY LENGTH — SAME AS DASHBOARD ANALYTICS)
-      if (item.label === "Railway Network 2010 Summary") {
-        rows.push(["Total Railway Length (km)", Math.round(item.count || 0)]);
-      }
-
-      // Railway Network 2018
-      if (item.railway_2018) {
-        const b = item.railway_2018;
-
-        rows.push(["Total Railway Length (km)", Math.round(b.total_length_km)]);
-        rows.push(["Total Tracks", format(b.total_tracks)]);
-        rows.push(["Broad Gauge", format(b.broad_gauge)]);
-      }
-
-      // National Highway 2018
-      if (item.national_highway_2018?.total_length_km) {
-        rows.push([
-          "Total National Highway Length (km)",
-          Math.round(item.national_highway_2018.total_length_km)
-        ]);
-      }
-
-      // State Highway 2018
-      if (item.state_highway_2018?.total_length_km) {
-        rows.push([
-          "Total State Highway Length (km)",
-          Math.round(item.state_highway_2018.total_length_km)
-        ]);
-      }
-      if (item.other_roads_2010) {
-        rows.push(["Total length (km)", Math.round(item.other_roads_2010.total_length_km)])
-      }
-      if (item.other_roads) {
-        rows.push(["Total length (km)", Math.round(item.other_roads.total_length_km)])
-      }
-      if (rows.length) {
-        pdf.autoTable({
-          startY: y + 5,
-          theme: "striped",
-          margin: { left: 12, right: 12 },
-          styles: {
-            fontSize: 9,
-            cellPadding: 2
-          },
-          headStyles: {
-            fillColor: [31, 59, 77],
-            textColor: 255,
-            fontStyle: "bold"
-          },
-          alternateRowStyles: {
-            fillColor: [236, 242, 249]
-          },
-          head: [["Metric", "Value"]],
-          body: rows
-        });
-
-        y = pdf.lastAutoTable.finalY + 10;
-      } else {
-        y += 10;
-      }
-    }
+    // ===== 2010–2018 ANALYTICS =====
+    pdf.setFontSize(11);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("2010–2018 Analytics", 14, y);
+    y += 6;
+    
+    pdf.autoTable({
+      startY: y,
+      head: [["Dataset", "2010 (km)", "2018 (km)"]],
+      body: [
+        [
+          "National Highways",
+          format(dashboard.analytics.nh.y2010),
+          format(dashboard.analytics.nh.y2018)
+        ],
+        [
+          "State Highways",
+          format(dashboard.analytics.sh.y2010),
+          format(dashboard.analytics.sh.y2018)
+        ],
+        [
+          "Other Roads",
+          format(dashboard.analytics.other.y2010),
+          format(dashboard.analytics.other.y2018)
+        ],
+        [
+          "Railway Networks",
+          format(dashboard.analytics.rail.y2010),
+          format(dashboard.analytics.rail.y2018)
+        ]
+      ],
+      theme: "striped",
+      headStyles: { fillColor: [31, 59, 77], textColor: 255 }
+    });
+    
+    y = pdf.lastAutoTable.finalY + 10;
+    
+    
+    // ===== 2018 LAYERS =====
+    pdf.setFont("helvetica", "bold");
+    pdf.text("2018 Layers", 14, y);
+    y += 6;
+    
+    pdf.autoTable({
+      startY: y,
+      head: [["Dataset", "Value", "Additional Info"]],
+      body: [
+        [
+          "Expressways",
+          Number(dashboard.expressways.existing.count) +
+            Number(dashboard.expressways.upcoming.count),
+          `Total Length: ${
+            Math.round(
+              Number(dashboard.expressways.existing.sum) +
+              Number(dashboard.expressways.upcoming.sum)
+            )
+          } km`
+        ],
+        [
+          "Ganga Cruise Route",
+          format(dashboard.ganga.sum),
+          "Longest Stretch: 1289 km"
+        ],
+        [
+          "UP Roadways Routes",
+          format(dashboard.roadways.count),
+          `Longest: ${km(dashboard.roadways.max)} km`
+        ],
+        [
+          "UP RTA Routes",
+          format(dashboard.rta.count),
+          `Longest: ${km(dashboard.rta.max)} km`
+        ]
+      ],
+      theme: "striped",
+      headStyles: { fillColor: [31, 59, 77], textColor: 255 }
+    });
+    
 
     pdf.save("RSAC_Transport_Dashboard.pdf");
   }
