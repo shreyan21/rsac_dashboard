@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
 import "./TransportPage.css";
 import "chart.js/auto";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+
 
 
 const API = "http://localhost:5000/transport";
@@ -18,7 +17,14 @@ export default function TransportPage() {
       .catch(console.error);
   }, []);
   const km = n => Math.round(Number(n || 0));
-
+  function displayLabel(label) {
+    if (!label) return "";
+    return label
+      .replace(/\s*2010\s*Summary/i, "")
+      .replace(/\s*2018\s*Summary/i, "")
+      .replace(/\s*Summary/i, "")
+      .trim();
+  }
   if (!data) return <div style={{ padding: 40 }}>Loading...</div>;
 
   const format = n =>
@@ -35,37 +41,585 @@ export default function TransportPage() {
       }
     ]
   });
+  function buildCardContent(item) {
+    let content = `<div class="metric-number">${format(item.count)}</div>`;
 
-const handleExport = async () => {
-  const element = document.getElementById("pdf-content");
+    /* ---------- UP RTA Routes ---------- */
+    if (item.rta_summary) {
+      const r = item.rta_summary;
+      content = `
+        <div class="scroll-area">
+          <div class="metric-number">${format(r.total)}</div>
+          <div class="metric-title">Total Routes</div>
 
-  const canvas = await html2canvas(element, {
-    scale: 2
-  });
+          <div class="column-grid">
+            <div class="column">
+              <div class="metric-number small">${Math.round(r.longest)} km</div>
+              <div class="metric-sub">Longest</div>
+            </div>
+            <div class="column">
+              <div class="metric-number small">${Math.round(r.shortest)} km</div>
+              <div class="metric-sub">Shortest</div>
+            </div>
+            
+          </div>
 
-  const imgData = canvas.toDataURL("image/png");
+          
+        </div>`;
+    }
+    /* ---------- Ganga Cruise Route ---------- */
+    if (item.ganga_cruise) {
+      const g = item.ganga_cruise;
 
-  const pdf = new jsPDF("p", "mm", "a4");
+      content = `
+  <div class="scroll-area">
+    <div class="metric-number">${format(Math.round(g.total_length_km))} km</div>
+    <div class="metric-title">Total Navigable Length</div>
 
-  const imgWidth = 190;
-  const pageHeight = 297;
-  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    <div class="column-grid">
+      <div class="column">
+        <div class="metric-number small">${format(g.total_routes)}</div>
+        <div class="metric-sub">Cruise Segment(s)</div>
+      </div>
 
-  let heightLeft = imgHeight;
-  let position = 10;
+      <div class="divider"></div>
 
-  pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
-  heightLeft -= pageHeight;
+      <div class="column">
+        <div class="metric-number small">${Math.round(g.longest_km)} km</div>
+        <div class="metric-sub">Longest Stretch</div>
+      </div>
+    </div>
 
-  while (heightLeft >= 0) {
-    position = heightLeft - imgHeight;
-    pdf.addPage();
-    pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
+    <div class="metric-section-title">Route</div>
+    <div class="metric-sub interpretation-text">
+      ${g.route_name} represents the mapped inland waterway
+      cruise corridor along the Ganga river.
+    </div>
+  </div>`;
+    }
+    if (item.expressways_combined) {
+
+      const e = item.expressways_combined;
+
+      content = `
+<div class="scroll-area">
+
+<div class="metric-number">${format(e.total)}</div>
+<div class="metric-title">Total Expressways</div>
+
+<div class="column-grid">
+  <div class="column">
+    <div class="metric-number small">${Math.round(e.longest)} km</div>
+    <div class="metric-sub">Longest</div>
+  </div>
+
+  <div class="column">
+    <div class="metric-number small">${Math.round(e.shortest)} km</div>
+    <div class="metric-sub">Shortest</div>
+  </div>
+</div>
+
+<div class="metric-section-title">Total Length</div>
+<div class="metric-number small">
+  ${format(Math.round(e.total_length))} km
+</div>
+
+</div>`;
+    }
+
+
+
+
+
+
+    /* ---------- UP Roadways Routes Summary ---------- */
+    if (item.statistics && item.top_depots) {
+      const stats = item.statistics;
+
+      content = `
+        <div class="scroll-area">
+          <div class="metric-number">${format(item.total_routes)}</div>
+          <div class="metric-title">Total Routes</div>
+
+          <div class="column-grid">
+            <div class="column">
+              <div class="metric-number small">${Math.round(stats.longest)} km</div>
+              <div class="metric-sub">Longest</div>
+            </div>
+            <div class="column">
+              <div class="metric-number small">${Math.round(stats.shortest)} km</div>
+              <div class="metric-sub">Shortest</div>
+            </div>
+           
+          </div>
+
+          <div class="column-grid" style="margin-top:10px;">
+            <div class="column">
+              <div class="metric-section-title">Top Depots</div>
+              <div class="metric-sub">
+                ${item.top_depots.map(d => `${d.name}: <b>${format(d.value)}</b>`).join("<br>")}
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="column">
+              <div class="metric-section-title">Top Regions</div>
+              <div class="metric-sub">
+                ${item.top_regions.map(d => `${d.name}: <b>${format(d.value)}</b>`).join("<br>")}
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    /* ---------- National Highway 2010 Summary ---------- */
+    if (item.national_highway_2010) {
+      const nh = item.national_highway_2010;
+
+      content = `
+        <div class="scroll-area">
+          <div class="metric-number">${format(Math.round(nh.total_length_km))} </div>
+          <div class="metric-title">Total Network Length</div>
+
+          <div class="column-grid">
+            <div class="column">
+              <div class="metric-number small">${Math.round(nh.longest_km)} </div>
+              <div class="metric-sub">Longest Section</div>
+            </div>
+            <div class="column">
+              <div class="metric-number small">${Math.round(nh.shortest_km)} km</div>
+              <div class="metric-sub">Shortest Section</div>
+            </div>
+           
+          </div>
+
+          <div class="metric-section-title">Key Highways</div>
+          <div class="metric-sub">
+            ${nh.top_highways.map(h => `${h.name}: <b>${Math.round(h.value)} km</b>`).join("<br>")}
+          </div>
+        </div>`;
+    }
+
+    /* ---------- State Highway 2010 Summary ---------- */
+    if (item.state_highway_2010) {
+      const sh = item.state_highway_2010;
+
+      content = `
+        <div class="scroll-area">
+          <div class="metric-number">${format(Math.round(sh.total_length_km))} km</div>
+          <div class="metric-title">Total Network Length</div>
+
+          <div class="column-grid">
+            <div class="column">
+              <div class="metric-number small">${Math.round(sh.longest_km)} km</div>
+              <div class="metric-sub">Longest Section</div>       
+            </div>
+            <div class="column">
+              <div class="metric-number small">${Math.round(sh.shortest_km)} km</div>
+              <div class="metric-sub">Shortest Section</div>
+            </div>
+           
+          </div>
+
+          <div class="metric-section-title">Key Highways</div>
+          <div class="metric-sub">
+            ${sh.top_highways.map(h => `${h.name}: <b>${Math.round(h.value)} km</b>`).join("<br>")}
+          </div>
+        </div>`;
+    }
+
+    /* ---------- National Highway 2018 Summary ---------- */
+    if (item.national_highway_2018) {
+      const nh18 = item.national_highway_2018;
+      content = `
+        <div class="scroll-area">
+          <div class="metric-number">${format(nh18.total_segments)}</div>
+          <div class="metric-title">Mapped NH Segments</div>
+
+          <div class="column-grid">
+            <div class="column">
+              <div class="metric-number small">${format(nh18.pucca_segments ?? nh18.total_segments)}</div>
+              <div class="metric-sub">Pucca Road Segments</div>
+            </div>
+            
+          </div>
+
+          <div class="metric-section-title">Interpretation</div>
+          <div class="metric-sub interpretation-text">
+            Continuous pucca National Highway network digitized for 2018
+            with homogeneous attributes across all segments.
+          </div>
+        </div>`;
+    }
+
+    /* ---------- State Highway 2018 Summary ---------- */
+    if (item.state_highway_2018) {
+      const sh18 = item.state_highway_2018;
+      content = `
+        <div class="scroll-area">
+          <div class="metric-number">${format(sh18.total_segments)}</div>
+          <div class="metric-title">Mapped SH Segments</div>
+
+          <div class="column-grid">
+            <div class="column">
+              <div class="metric-number small">${format(sh18.pucca_segments ?? sh18.total_segments)}</div>
+              <div class="metric-sub">Pucca Road Segments</div>
+            </div>
+           
+          </div>
+
+          <div class="metric-section-title">Interpretation</div>
+          <div class="metric-sub interpretation-text">
+            State Highway network represented as uniform pucca corridors,
+            primarily distinguished by administrative status rather than length.
+          </div>
+        </div>`;
+    }
+
+    /* ---------- Railway Network 2010 ---------- */
+    /* ---------- Railway Network (Length Based) ---------- */
+    if (item.railway_summary) {
+      const r = item.railway_summary;
+
+      content = `
+  <div class="scroll-area">
+    <div class="metric-number">${format(Math.round(r.total_length))} km</div>
+    <div class="metric-title">Total Railway Length</div>
+
+    <div class="column-grid">
+      <div class="column">
+        <div class="metric-number small">${Math.round(r.longest)} km</div>
+        <div class="metric-sub">Longest Stretch</div>
+      </div>
+
+      <div class="column">
+        <div class="metric-number small">${Math.round(r.shortest)} km</div>
+        <div class="metric-sub">Shortest Stretch</div>
+      </div>
+    </div>
+  </div>
+`;
+    }
+
+    /* ---------- Railway Network 2018 ---------- */
+    if (item.railway_2018) {
+
+      const b = item.railway_2018;
+
+      content = `
+<div class="scroll-area">
+
+  <div class="metric-number">${format(Math.round(b.total_length_km))} km</div>
+  <div class="metric-title">Total Railway Length</div>
+
+  <div class="column-grid">
+
+    <div class="column">
+      <div class="metric-number small">${format(b.total_tracks)}</div>
+      <div class="metric-sub">Total Tracks</div>
+    </div>
+
+    <div class="column">
+      <div class="metric-number small">${format(b.broad_gauge)}</div>
+      <div class="metric-sub">Broad Gauge</div>
+    </div>
+
+  </div>
+
+  <div class="metric-section-title">Operational Status</div>
+  <div class="metric-sub">
+    Govt: ${format(b.government_operational)} |
+    Under Construction: ${format(b.under_construction)} |
+    Metro: ${format(b.metro_lines)}
+  </div>
+
+</div>
+`;
+    }
+
+
+    /* ---------- Other Roads 2010 ---------- */
+    if (item.other_roads_2010) {
+      const o = item.other_roads_2010;
+      content = `
+        <div class="scroll-area">
+          <div class="metric-number">${format(item.count)}</div>
+          <div class="metric-title">Total Roads</div>
+          <div class="column-grid">
+            <div class="column">
+              <div class="metric-number small">${format(o.pucca.total)}</div>
+              <div class="metric-section-title">Pucca</div>
+              <div class="metric-sub">
+                City: ${format(o.pucca.city)}<br>
+                District: ${format(o.pucca.district)}<br>
+                Village Pakka: ${format(o.pucca.village_pakka)}
+              </div>
+            </div>
+            <div class="divider"></div>
+            <div class="column">
+              <div class="metric-number small">${format(o.katchha.total)}</div>
+              <div class="metric-section-title">Katchha</div>
+              <div class="metric-sub">
+                Footpath: ${format(o.katchha.footpath)}<br>
+                Cart Track: ${format(o.katchha.cart_track)}<br>
+                Village Kachha: ${format(o.katchha.village_kachha)}
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    /* ---------- Other Roads 2018 ---------- */
+    if (item.other_roads) {
+      const o = item.other_roads;
+      content = `
+        <div class="scroll-area">
+          <div class="metric-number">${format(item.count)}</div>
+          <div class="metric-title">Total Roads</div>
+          <div class="column-grid">
+            <div class="column">
+              <div class="metric-number small">${format(o.pucca.total)}</div>
+              <div class="metric-section-title">Pucca</div>
+              <div class="metric-sub">
+                City: ${format(o.pucca.city_road)}<br>
+                Village Pucca: ${format(o.pucca.village_pucca)}<br>
+                District: ${format(o.pucca.district_road)}
+              </div>
+            </div>
+            <div class="divider"></div>
+            <div class="column">
+              <div class="metric-number small">${format(o.katchha.total)}</div>
+              <div class="metric-section-title">Katchha</div>
+              <div class="metric-sub">
+                Footpath: ${format(o.katchha.foot_path)}<br>
+                Cart Track: ${format(o.katchha.cart_track)}<br>
+                Village Katchha: ${format(o.katchha.village_katchha)}
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    return content;
+  }
+  function buildCardHtml(item) {
+    const content = buildCardContent(item);
+    const friendly = item.friendly || "";
+    const cleanTitle = displayLabel(item.label || friendly || "");
+    return `
+      <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+        <div class="card-custom">
+          <h6 class="fw-bold text-primary text-center">${cleanTitle}</h6>
+          <div class="card-content">${content}</div>
+          <div class="card-footer-label" title="${friendly}">${friendly}</div>
+        </div>
+      </div>
+    `;
   }
 
-  pdf.save("RSAC_Transport_Dashboard.pdf");
-};
+  async function exportpdf() {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4"
+    });
+
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+
+    // ---------- HEADER ---------- //
+    try {
+      const logoBlob = await fetch("/logo.jpg").then(r => r.blob());
+      const logoBase64 = await new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.readAsDataURL(logoBlob);
+      });
+
+      pdf.addImage(logoBase64, "JPEG", 10, 10, 22, 22);
+    } catch (err) { }
+
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(14);
+    pdf.text("Remote Sensing Applications Centre, Uttar Pradesh", pdfWidth / 2, 18, { align: "center" });
+
+    pdf.setFontSize(11);
+    pdf.text("Lucknow, Uttar Pradesh", pdfWidth / 2, 25, { align: "center" });
+
+    pdf.setFontSize(9);
+    pdf.setTextColor(70);
+    pdf.text(
+      `Generated on: ${new Date().toLocaleString("en-IN")}`,
+      pdfWidth - 10,
+      32,
+      { align: "right" }
+    );
+
+    pdf.setTextColor(0);
+    pdf.setFontSize(12);
+    pdf.text("Transport Dataset Summary", pdfWidth / 2, 42, { align: "center" });
+
+    let y = 50;
+
+    // ---------- ANALYTICS SECTION WITH CHARTS IN PDF ---------- //
+
+
+    // ---------- DATASET-WISE TABLE SECTION ---------- //
+    const data = await fetch(`${API}/dashboard`).then(r => r.json());
+
+    for (const key in  data) {
+      const item = data[key]
+      if (y > 250) {
+        pdf.addPage();
+        y = 20;
+      }
+
+      const baseTitle = displayLabel(item.label || item.friendly || "Dataset");
+
+      let yearTag = "";
+      if (item.year === "2010") {
+        yearTag = " — 2010 (Baseline Layer)";
+      } else if (item.year === "2018") {
+        yearTag = " — 2018 (Updated Layer)";
+      } else if (item.year) {
+        yearTag = ` — ${item.year}`;
+      }
+
+      const title = baseTitle + yearTag;
+
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(11);
+      pdf.text(title, 14, y);
+      pdf.setFontSize(9);
+      pdf.setFont("helvetica", "normal");
+
+      const rows = [];
+
+      // ---------------- ONLY WHAT DASHBOARD SHOWS ----------------
+
+      // UP RTA Routes
+      if (item.rta_summary) {
+        const r = item.rta_summary;
+
+        rows.push(["Total Routes", format(r.total)]);
+        rows.push(["Districts Covered", format(r.districts)]);
+        rows.push(["Longest Route (km)", Math.round(r.longest)]);
+        rows.push(["Shortest Route (km)", Math.round(r.shortest)]);
+      }
+
+      // Ganga Cruise Route
+      if (item.ganga_cruise) {
+        const g = item.ganga_cruise;
+
+        rows.push(["Total Navigable Length (km)", Math.round(g.total_length_km)]);
+        rows.push(["Total Cruise Segments", format(g.total_routes)]);
+        rows.push(["Longest Stretch (km)", Math.round(g.longest_km)]);
+        rows.push(["Route Name", g.route_name]);
+      }
+
+      // Expressways Combined
+      if (item.expressways_combined) {
+        const e = item.expressways_combined;
+
+        rows.push(["Total Expressways", format(e.total)]);
+        rows.push(["Total Length (km)", Math.round(e.total_length)]);
+        rows.push(["Longest Expressway (km)", Math.round(e.longest)]);
+        rows.push(["Shortest Expressway (km)", Math.round(e.shortest)]);
+      }
+
+      // UP Roadways Routes
+      if (item.statistics && item.top_depots) {
+        const s = item.statistics;
+
+        rows.push(["Total Routes", format(item.total_routes)]);
+        rows.push(["Longest Route (km)", Math.round(s.longest)]);
+        rows.push(["Shortest Route (km)", Math.round(s.shortest)]);
+      }
+
+      // National Highway 2010
+      if (item.national_highway_2010) {
+        const nh = item.national_highway_2010;
+
+        rows.push(["Total Length (km)", Math.round(nh.total_length_km)]);
+        rows.push(["Longest Section (km)", Math.round(nh.longest_km)]);
+        rows.push(["Shortest Section (km)", Math.round(nh.shortest_km)]);
+      }
+
+      // State Highway 2010
+      if (item.state_highway_2010) {
+        const sh = item.state_highway_2010;
+
+        rows.push(["Total Length (km)", Math.round(sh.total_length_km)]);
+        rows.push(["Longest Section (km)", Math.round(sh.longest_km)]);
+        rows.push(["Shortest Section (km)", Math.round(sh.shortest_km)]);
+      }
+
+      // Railway Network 2010 (ONLY LENGTH — SAME AS DASHBOARD ANALYTICS)
+      if (item.label === "Railway Network 2010 Summary") {
+        rows.push(["Total Railway Length (km)", Math.round(item.count || 0)]);
+      }
+
+      // Railway Network 2018
+      if (item.railway_2018) {
+        const b = item.railway_2018;
+
+        rows.push(["Total Railway Length (km)", Math.round(b.total_length_km)]);
+        rows.push(["Total Tracks", format(b.total_tracks)]);
+        rows.push(["Broad Gauge", format(b.broad_gauge)]);
+      }
+
+      // National Highway 2018
+      if (item.national_highway_2018?.total_length_km) {
+        rows.push([
+          "Total National Highway Length (km)",
+          Math.round(item.national_highway_2018.total_length_km)
+        ]);
+      }
+
+      // State Highway 2018
+      if (item.state_highway_2018?.total_length_km) {
+        rows.push([
+          "Total State Highway Length (km)",
+          Math.round(item.state_highway_2018.total_length_km)
+        ]);
+      }
+      if (item.other_roads_2010) {
+        rows.push(["Total length (km)", Math.round(item.other_roads_2010.total_length_km)])
+      }
+      if (item.other_roads) {
+        rows.push(["Total length (km)", Math.round(item.other_roads.total_length_km)])
+      }
+      if (rows.length) {
+        pdf.autoTable({
+          startY: y + 5,
+          theme: "striped",
+          margin: { left: 12, right: 12 },
+          styles: {
+            fontSize: 9,
+            cellPadding: 2
+          },
+          headStyles: {
+            fillColor: [31, 59, 77],
+            textColor: 255,
+            fontStyle: "bold"
+          },
+          alternateRowStyles: {
+            fillColor: [236, 242, 249]
+          },
+          head: [["Metric", "Value"]],
+          body: rows
+        });
+
+        y = pdf.lastAutoTable.finalY + 10;
+      } else {
+        y += 10;
+      }
+    }
+
+    pdf.save("RSAC_Transport_Dashboard.pdf");
+  }
+
 
 
   return (
@@ -74,19 +628,20 @@ const handleExport = async () => {
 
       {/* HEADER */}
       <header className="main-header">
-        <img src="http://localhost:5000/images/logo.jpg" alt="RSAC Logo" />
+        <img src="/logo.jpg" alt="RSAC Logo" />
         <h2>Remote Sensing Applications Centre, Uttar Pradesh</h2>
       </header>
 
       {/* SUB HEADER */}
       <div className="sub-header">
         <h4>TRANSPORT DATASET SUMMARY</h4>
-        <button
-  className="btn-export"
-  onClick={() => window.open(`${API}/export`, "_blank")}
->
-  📄 EXPORT PDF
-</button>
+        {/* <button
+          className="btn-export"
+          onClick={() => window.open(`${API}/export`, "_blank")}
+        >
+          📄 EXPORT PDF
+        </button> */}
+        <button className="btn-export" onClick={exportpdf}>EXPORT PDF</button>
 
 
 
@@ -213,9 +768,9 @@ const handleExport = async () => {
               main={format(data.rta.count)}
               label="Total Routes"
               leftValue={km(data.rta.max)}
-              leftLabel="Longest"
+              leftLabel="Longest(km)"
               rightValue={km(data.rta.min)}
-              rightLabel="Shortest"
+              rightLabel="Shortest(km)"
             />
           </MetricCard>
 
