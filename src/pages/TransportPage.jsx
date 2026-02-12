@@ -514,7 +514,7 @@ export default function TransportPage() {
     
     pdf.autoTable({
       startY: y,
-      head: [["Dataset", "Value", "Additional Info"]],
+      head: [["Dataset", "Total", "Additional Info"]],
       body: [
         [
           "Expressways",
@@ -529,7 +529,7 @@ export default function TransportPage() {
         ],
         [
           "Ganga Cruise Route",
-          format(dashboard.ganga.sum),
+          `${format(dashboard.ganga.sum)}(km)`,
           "Longest Stretch: 1289 km"
         ],
         [

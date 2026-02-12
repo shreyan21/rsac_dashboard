@@ -55,7 +55,6 @@ export default function SarusPieChart({ title, charts, type }) {
           options={{
             responsive: true,
             maintainAspectRatio: false,
-            aspectRatio:1.2,
             plugins: {
               legend: {
                 position: "bottom",

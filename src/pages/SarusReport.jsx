@@ -132,11 +132,11 @@ export default function SarusReport() {
         const leftImg = canvases[0].toDataURL("image/png");
         const rightImg = canvases[1].toDataURL("image/png");
 
-        const chartWidth = (pageWidth - 120) / 2;
-        const chartHeight = 320;
+        const chartWidth = (pageWidth - 100) / 2;
+        const chartHeight = 200;
 
-        doc.addImage(leftImg, "PNG", 60, 130, chartWidth, chartHeight);
-        doc.addImage(rightImg, "PNG", 80 + chartWidth, 130, chartWidth, chartHeight);
+        doc.addImage(leftImg, "PNG", 30, 170, chartWidth, chartHeight);
+        doc.addImage(rightImg, "PNG", 80 + chartWidth, 170, chartWidth, chartHeight);
       }
     }
 
