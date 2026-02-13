@@ -8,9 +8,10 @@ import Pagination from "../components/Pagination";
 import "../styles/app.css";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import logo from "../assests/logo.jpg";  // add this at top
 
-// const API = "http://localhost:5000";
-const API = 'http://14.139.43.117/report_samvedan'
+const API = "http://localhost:5000";
+// const API = 'http://14.139.43.117/report_samvedan'
 
 export default function SarusReport() {
   const [params] = useSearchParams();
@@ -75,22 +76,26 @@ export default function SarusReport() {
     const q = new URLSearchParams({ table });
     if (district) q.append("district", district);
 
-    const res = await fetch(`${API}/export?${q.toString()}`);
-    const fullData = await res.json();
-    const fullRows = fullData.rows || [];
-    const fullCharts = fullData.charts || {};
+    const res = await fetch(`${API}/export?format=pdf&${q.toString()}`);
+    const blob = await res.json();
+    // const url = window.URL.createObjectURL(blob);
+    // const a = document.createElement("a");
+    // a.href = url
 
     const doc = new jsPDF("landscape", "pt", "a4");
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
-    const logo = new Image();
-    logo.src = "/logo.jpg";
+    const logoImg = new Image();
+    const fullRows = blob.rows || [];
+    const fullCharts = blob.charts || {};
+    // logo.src = "/logo.jpg";
+    logoImg.src = logo;   // <-- use imported image
 
     await new Promise(resolve => {
-      logo.onload = resolve;
+      logoImg.onload = resolve;
     });
-
-    doc.addImage(logo, "JPEG", 40, 20, 50, 50);
+    // console.log(logoImg);
+    doc.addImage(logoImg, "JPEG", 40, 20, 50, 50);
 
 
     /* ===== HEADER ===== */
@@ -105,7 +110,7 @@ export default function SarusReport() {
     doc.text("Lucknow, Uttar Pradesh", 100, 55);
 
     doc.setFontSize(14);
-  
+
 
     doc.text(`Sarus Census Report for ${table.charAt(0).toUpperCase() + table.slice(1).replace('_', ' ').replace(/_/g, '/')}`, pageWidth / 2, 85, { align: "center" });
     doc.setFontSize(14);
@@ -136,8 +141,8 @@ export default function SarusReport() {
         const chartWidth = (pageWidth - 100) / 2;
         const chartHeight = 200;
 
-        doc.addImage(leftImg, "PNG", 20, 170, chartWidth+100, chartHeight+20);
-        doc.addImage(rightImg, "PNG", 70 + chartWidth, 170, chartWidth+20, chartHeight+20);
+        doc.addImage(leftImg, "PNG", 20, 170, chartWidth + 100, chartHeight + 20);
+        doc.addImage(rightImg, "PNG", 70 + chartWidth, 170, chartWidth + 20, chartHeight + 20);
       }
     }
 

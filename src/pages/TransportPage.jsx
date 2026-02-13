@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
 import "./TransportPage.css";
 import "chart.js/auto";
+import logo from "../assests/logo.jpg";
 
 
 
-// const API = "http://localhost:5000/transport";
-const API = 'http://14.139.43.117/report_samvedan/transport'
+const API = "http://localhost:5000/transport";
+// const API = 'http://14.139.43.117/report_samvedan/transport'
 
 
 export default function TransportPage() {
@@ -432,7 +433,7 @@ export default function TransportPage() {
 
     // ---------- HEADER ---------- //
     try {
-      const logoBlob = await fetch("/logo.jpg").then(r => r.blob());
+      const logoBlob = await fetch(logo).then(r => r.blob());
       const logoBase64 = await new Promise(resolve => {
         const reader = new FileReader();
         reader.onload = () => resolve(reader.result);
@@ -561,9 +562,11 @@ export default function TransportPage() {
 
       {/* HEADER */}
       <header className="main-header">
-        <img src="/logo.jpg" alt="RSAC Logo" />
+      <img src={logo} className="rsac-logo" />
         <h2>Remote Sensing Applications Centre, Uttar Pradesh</h2>
       </header>
+
+{/* <Header /> */}
 
       {/* SUB HEADER */}
       <div className="sub-header">
