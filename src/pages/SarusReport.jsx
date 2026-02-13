@@ -18,14 +18,14 @@ export default function SarusReport() {
   const table = params.get("table");
 
   const [rows, setRows] = useState([]);
-  const [district, setDistrict] = useState([]);
+  const [districts, setDistricts] = useState([]);
   const [charts, setCharts] = useState({});
   const [totalRows, setTotalRows] = useState(0);
   const [total, setTotal] = useState(0);
 
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(25);
-  // const [district, setDistrict] = useState("");
+  const [district, setDistrict] = useState("");
 
   const isLucknow = table === "sarus_lucknow_population";
 
@@ -36,7 +36,7 @@ export default function SarusReport() {
 
     fetch(`${API}/districts?table=${table}`)
       .then(res => res.json())
-      .then(setDistrict);
+      .then(setDistricts);
   }, [table]);
 
   /* ================= FETCH REPORT ================= */
@@ -141,8 +141,8 @@ export default function SarusReport() {
         const chartWidth = (pageWidth - 100) / 2;
         const chartHeight = 200;
 
-        doc.addImage(leftImg, "PNG", 20, 170, chartWidth + 100, chartHeight + 20);
-        doc.addImage(rightImg, "PNG", 70 + chartWidth, 170, chartWidth + 20, chartHeight + 20);
+        doc.addImage(leftImg, "PNG", 20, 170, chartWidth - 70, chartHeight + 20);
+        doc.addImage(rightImg, "PNG", 70 + chartWidth, 170, chartWidth -50, chartHeight + 30);
       }
     }
 
@@ -153,11 +153,12 @@ export default function SarusReport() {
     const headers = Object.keys(fullRows[0] || {}).filter(h => h !== "gid" && h !== "site");
 
     autoTable(doc, {
-      head: [["SNo", ...headers.map(h => h.replace(/_/g, " ").toUpperCase())]],
-      body: fullRows.map((row, i) => [
-        i + 1,
-        ...headers.map(h => row[h] ?? "")
-      ]),
+    head: [headers.map(h => h.replace(/_/g, " ").toUpperCase())],
+
+body: fullRows.map(row =>
+  headers.map(h => row[h] ?? "")
+),
+
       startY: 60,
       theme: "grid",
       styles: { fontSize: 8, halign: "center" },
@@ -194,7 +195,7 @@ export default function SarusReport() {
           }}
         >
           <option value="">All Districts</option>
-          {district.map(d => (
+          {districts.map(d => (
             <option key={d} value={d}>{d}</option>
           ))}
         </select>
@@ -223,17 +224,17 @@ export default function SarusReport() {
             let chartImage = null;
             let habitatChartImage = null;
             let compositionChartImage = null;
-            
+
             const canvases = document.querySelectorAll(".chart-pane canvas");
-            
+
             if (isLucknow && canvases.length >= 2) {
               compositionChartImage = canvases[0].toDataURL("image/png"); // Adults/Juvenile/Nests
               habitatChartImage = canvases[1].toDataURL("image/png");     // Habitat pie
-            } 
+            }
             else if (!isLucknow && canvases.length >= 1) {
               chartImage = canvases[0].toDataURL("image/png"); // Bar chart
             }
-            
+
 
             const res = await fetch(`${API}/export`, {
               method: "POST",
@@ -279,12 +280,26 @@ export default function SarusReport() {
 
       <div className="layout">
 
-        <div className="chart-pane">
+        <div className="chart-pane" style={{
+          maxHeight: "800px",
+          overflowY: "auto",
+          paddingRight: "5px"
+        }}>
           {isLucknow ? (
             <>
-              <SarusPieChart title="Adults / Juveniles / Nests" charts={charts.population} />
-              <SarusPieChart title="Sarus Count by Habitat" charts={charts.habitat} type="habitat" />
+              <div style={{ maxHeight: '950px', overflowY: "auto", display: "flex", flexDirection: "column", gap: "20px" }}>
+                <SarusPieChart
+                  title="Adults / Juveniles / Nests"
+                  charts={charts.population}
+                />
+                <SarusPieChart
+                  title="Sarus Count by Habitat"
+                  charts={charts.habitat}
+                  type="habitat"
+                />
+              </div>
             </>
+
           ) : (
             charts.district &&
             charts.district.length > 0 && (

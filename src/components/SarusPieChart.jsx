@@ -19,51 +19,80 @@ export default function SarusPieChart({ title, charts, type }) {
     ];
   }
 
-  return (
-    <div
+ return (
+  <div
+    style={{
+      background: "#fff",
+      borderRadius: "10px",
+      padding: "15px",
+      boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
+      minHeight: "480px",          // fixed same height for both
+      display: "flex",
+      flexDirection: "column",
+      overflow: "hidden"        // important
+    }}
+  >
+    <h4
       style={{
-        background: "#fff",
-        borderRadius: "10px",
-        padding: "15px",
-        boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
-        minHeight: "300px",
-        display: "flex",
-        flexDirection: "column"
+        textAlign: "center",
+        color: "#003366",
+        marginBottom: "10px",
+        fontSize: "14px",
+        fontWeight: "600"
       }}
     >
-      <h4
-        style={{
-          textAlign: "center",
-          color: "#003366",
-          marginBottom: "10px",
-          fontSize: "14px",
-          fontWeight: "600"
-        }}
-      >
-        {title}
-      </h4>
+      {title}
+    </h4>
 
-      <div style={{ flex: 1 ,height: "250px"}}>
-        <Pie
-          data={{
-            labels,
-            datasets: [{
-              data: values,
-              backgroundColor: ["#4c78a8", "#f58518", "#54a24b"]
-            }]
-          }}
-          options={{
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: {
-                position: "bottom",
-                labels: { font: { size: 11 } }
-              }
-            }
-          }}
-        />
-      </div>
+    <div
+      style={{
+        flex: 1,
+        position: "relative",
+        height: "380px",
+      }}
+    >
+      <Pie
+        data={{
+          labels,
+          datasets: [{
+            data: values,
+            backgroundColor: [
+              "#4c78a8",
+              "#f58518",
+              "#54a24b",
+              "#72b7b2",
+              "#e45756",
+              "#b279a2",
+              "#ff9da6",
+              "#9d755d",
+              "#bab0ac"
+            ]
+          }]
+        }}
+       options={{
+  responsive: true,
+  maintainAspectRatio: false,
+  layout: {
+    padding: 10
+  },
+  plugins: {
+    legend: {
+      position: "bottom",
+      labels: {
+        font: { size: 11 },
+        boxWidth: 14,
+        padding: 8,
+        usePointStyle: true
+      },
+      maxHeight: 70   // 👈 IMPORTANT: restrict legend height
+    }
+  }
+}}
+
+      />
     </div>
-  );
+  </div>
+);
+
+
 }
