@@ -6,9 +6,9 @@ import TransportPage from "./pages/TransportPage";
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/report">
       <Routes>
-        <Route path="/report" element={<SarusReport />} />
+        <Route path="/sarus" element={<SarusReport />} />
         <Route path="/transport" element={<TransportPage />} />
       </Routes>
     </BrowserRouter>

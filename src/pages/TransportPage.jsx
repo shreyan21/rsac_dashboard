@@ -5,7 +5,9 @@ import "chart.js/auto";
 
 
 
-const API = "http://localhost:5000/transport";
+// const API = "http://localhost:5000/transport";
+const API = 'http://14.139.43.117/report_samvedan/transport'
+
 
 export default function TransportPage() {
   const [data, setData] = useState(null);

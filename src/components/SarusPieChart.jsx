@@ -43,7 +43,7 @@ export default function SarusPieChart({ title, charts, type }) {
         {title}
       </h4>
 
-      <div style={{ flex: 1 }}>
+      <div style={{ flex: 1 ,height: "250px"}}>
         <Pie
           data={{
             labels,

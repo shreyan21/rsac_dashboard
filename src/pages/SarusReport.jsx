@@ -9,7 +9,8 @@ import "../styles/app.css";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-const API = "http://localhost:5000";
+// const API = "http://localhost:5000";
+const API = 'http://14.139.43.117/report_samvedan'
 
 export default function SarusReport() {
   const [params] = useSearchParams();
@@ -74,7 +75,7 @@ export default function SarusReport() {
     const q = new URLSearchParams({ table });
     if (district) q.append("district", district);
 
-    const res = await fetch(`${API}/report?${q.toString()}`);
+    const res = await fetch(`${API}/export?${q.toString()}`);
     const fullData = await res.json();
     const fullRows = fullData.rows || [];
     const fullCharts = fullData.charts || {};
@@ -135,8 +136,8 @@ export default function SarusReport() {
         const chartWidth = (pageWidth - 100) / 2;
         const chartHeight = 200;
 
-        doc.addImage(leftImg, "PNG", 30, 170, chartWidth, chartHeight);
-        doc.addImage(rightImg, "PNG", 80 + chartWidth, 170, chartWidth, chartHeight);
+        doc.addImage(leftImg, "PNG", 20, 170, chartWidth+100, chartHeight+20);
+        doc.addImage(rightImg, "PNG", 70 + chartWidth, 170, chartWidth+20, chartHeight+20);
       }
     }
 
