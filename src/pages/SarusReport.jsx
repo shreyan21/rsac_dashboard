@@ -18,14 +18,14 @@ export default function SarusReport() {
   const table = params.get("table");
 
   const [rows, setRows] = useState([]);
-  const [districts, setDistricts] = useState([]);
+  const [district, setDistrict] = useState([]);
   const [charts, setCharts] = useState({});
   const [totalRows, setTotalRows] = useState(0);
   const [total, setTotal] = useState(0);
 
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(25);
-  const [district, setDistrict] = useState("");
+  // const [district, setDistrict] = useState("");
 
   const isLucknow = table === "sarus_lucknow_population";
 
@@ -36,7 +36,7 @@ export default function SarusReport() {
 
     fetch(`${API}/districts?table=${table}`)
       .then(res => res.json())
-      .then(setDistricts);
+      .then(setDistrict);
   }, [table]);
 
   /* ================= FETCH REPORT ================= */
@@ -194,7 +194,7 @@ export default function SarusReport() {
           }}
         >
           <option value="">All Districts</option>
-          {districts.map(d => (
+          {district.map(d => (
             <option key={d} value={d}>{d}</option>
           ))}
         </select>
@@ -220,12 +220,20 @@ export default function SarusReport() {
           className="btn btn-success btn-sm"
           onClick={async () => {
 
-            const canvas = document.querySelector(".chart-pane canvas");
             let chartImage = null;
-
-            if (canvas) {
-              chartImage = canvas.toDataURL("image/png");
+            let habitatChartImage = null;
+            let compositionChartImage = null;
+            
+            const canvases = document.querySelectorAll(".chart-pane canvas");
+            
+            if (isLucknow && canvases.length >= 2) {
+              compositionChartImage = canvases[0].toDataURL("image/png"); // Adults/Juvenile/Nests
+              habitatChartImage = canvases[1].toDataURL("image/png");     // Habitat pie
+            } 
+            else if (!isLucknow && canvases.length >= 1) {
+              chartImage = canvases[0].toDataURL("image/png"); // Bar chart
             }
+            
 
             const res = await fetch(`${API}/export`, {
               method: "POST",
@@ -236,7 +244,9 @@ export default function SarusReport() {
                 format: "excel",
                 table,
                 district,
-                chartImage
+                chartImage,
+                habitatChartImage,
+                compositionChartImage
               })
             });
 
