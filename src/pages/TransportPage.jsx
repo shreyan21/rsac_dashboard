@@ -6,8 +6,8 @@ import logo from "../assests/logo.jpg";
 
 
 
-// const API = "http://localhost:5000/transport";
-const API = 'http://14.139.43.117/report_samvedan/transport'
+const API = "http://localhost:5000/transport";
+// const API = 'http://14.139.43.117/report_samvedan/transport'
 
 
 export default function TransportPage() {
@@ -469,7 +469,6 @@ export default function TransportPage() {
 
 
     // ---------- DATASET-WISE TABLE SECTION ---------- //
-    const data = await fetch(`${API}/dashboard`).then(r => r.json());
     const dashboard = await fetch(`${API}/dashboard`).then(r => r.json());
 
     // ===== 2010–2018 ANALYTICS =====
