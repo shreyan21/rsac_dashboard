@@ -141,7 +141,7 @@ export default function SarusReport() {
         const chartWidth = (pageWidth - 100) / 2;
         const chartHeight = 200;
 
-        doc.addImage(leftImg, "PNG", 20, 170, chartWidth - 70, chartHeight + 20);
+        doc.addImage(leftImg, "PNG", 40, 180, chartWidth - 70, chartHeight + 20);
         doc.addImage(rightImg, "PNG", 70 + chartWidth, 170, chartWidth -50, chartHeight + 30);
       }
     }
