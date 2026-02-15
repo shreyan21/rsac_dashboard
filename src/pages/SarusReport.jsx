@@ -87,7 +87,6 @@ export default function SarusReport() {
     const pageHeight = doc.internal.pageSize.getHeight();
     const logoImg = new Image();
     const fullRows = blob.rows || [];
-    const fullCharts = blob.charts || {};
     // logo.src = "/logo.jpg";
     logoImg.src = logo;   // <-- use imported image
 
@@ -142,7 +141,23 @@ export default function SarusReport() {
         const chartHeight = 200;
 
         doc.addImage(leftImg, "PNG", 40, 180, chartWidth - 70, chartHeight + 20);
-        doc.addImage(rightImg, "PNG", 70 + chartWidth, 170, chartWidth -50, chartHeight + 30);
+        // Title under first pie
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "bold");
+        doc.text(
+          "Total Number of Adults, Juveniles and Nests",
+          20 + (chartWidth - 70) / 2,
+          170 + chartHeight + 50,
+          { align: "center" }
+        );
+        doc.addImage(rightImg, "PNG", 70 + chartWidth, 170, chartWidth - 50, chartHeight + 30);
+        // Title under second pie
+        doc.text(
+          "Sarus Count by Habitat",
+          70 + chartWidth + (chartWidth - 50) / 2,
+          170 + chartHeight + 50,
+          { align: "center" }
+        );
       }
     }
 
@@ -153,11 +168,11 @@ export default function SarusReport() {
     const headers = Object.keys(fullRows[0] || {}).filter(h => h !== "gid" && h !== "site");
 
     autoTable(doc, {
-    head: [headers.map(h => h.replace(/_/g, " ").toUpperCase())],
+      head: [headers.map(h => h.replace(/_/g, " ").toUpperCase())],
 
-body: fullRows.map(row =>
-  headers.map(h => row[h] ?? "")
-),
+      body: fullRows.map(row =>
+        headers.map(h => row[h] ?? "")
+      ),
 
       startY: 60,
       theme: "grid",
