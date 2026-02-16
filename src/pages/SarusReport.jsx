@@ -10,8 +10,8 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import logo from "../assests/logo.jpg";  // add this at top
 
-const API = "http://localhost:5000";
-// const API = 'http://14.139.43.117/report_samvedan'
+// const API = "http://localhost:5000";
+const API = 'http://14.139.43.117/report_samvedan'
 
 export default function SarusReport() {
   const [params] = useSearchParams();
