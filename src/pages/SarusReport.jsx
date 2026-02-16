@@ -210,7 +210,7 @@ export default function SarusReport() {
           }}
         >
           <option value="">All Districts</option>
-          {districts.map(d => (
+          {Array.isArray(districts)&&districts.map(d => (
             <option key={d} value={d}>{d}</option>
           ))}
         </select>
