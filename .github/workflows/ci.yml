@@ -21,7 +21,7 @@ jobs:
 
             
           - name: Launch EC2 instance
-            run: 
+            run: |
               aws ec2 run-instances \ 
               --image-id ami-019715e0d74f695be \
               --count 1 \
