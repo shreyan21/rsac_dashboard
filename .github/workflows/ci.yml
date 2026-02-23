@@ -6,36 +6,32 @@ on:
             master
 
 jobs:
-    image_remove:
+    provision-ec2:
         runs-on: ubuntu-latest
-        
         steps:
-            - name: loading repo
-              uses: actions/checkout@v4
+          - name: Checkout code
+            uses: actions/checkout@v4
+
+          - name: Configure AWS credentials
+            uses: aws-actions/configure-aws-credentials@v4
+            with:
+              aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
+              aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+              aws-region: ap-south-1
+
             
-            - name: installing node
-              uses: actions/setup-node@v4
-              with:
-                node-version: 18
+          - name: Launch EC2 instance
+            run: 
+              aws ec2-run-instances \ 
+              --image-id ami-019715e0d74f695be \
+              --count 1 \
+              --instance-type ec2.micro \
+              --key-pair mypair \
+              --security-group-ids sg-062a6b166596e2bc1
+                  
 
-            - name: installing dependencies
-              run: npm install
-
-            - name: build docker
-              uses: docker/setup-buildx-action@v2
-
-            - name: logging to docker hub
-              uses: docker/login-action@v3
-              with:
-                username: ${{secrets.DOCKER_USERNAME}}
-                password: ${{secrets.DOCKER_PASSWORD}}
-
-            - name: pushing image to hub
-              uses: docker/build-push-action@v5
-              with:
-                context: .
-                push: true
-                tags: ${{secrets.DOCKER_USERNAME}}/rsac_dashboard:latest
+        
+        
 
 
 
