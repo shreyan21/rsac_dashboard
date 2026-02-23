@@ -1,0 +1,48 @@
+name: removing image
+
+on:
+    pull_request:
+        branches:
+            master
+
+jobs:
+    image_remove:
+        runs-on: ubuntu-latest
+        
+        steps:
+            - name: loading repo
+              uses: actions/checkout@v4
+            
+            - name: installing node
+              uses: actions/setup-node@v4
+              with:
+                node-version: 18
+
+            - name: installing dependencies
+              run: npm install
+
+            - name: build docker
+              uses: docker/setup-buildx-action@v2
+
+            - name: logging to docker hub
+              uses: docker/login-action@v3
+              with:
+                username: ${{secrets.DOCKER_USERNAME}}
+                password: ${{secrets.DOCKER_PASSWORD}}
+
+            - name: pushing image to hub
+              uses: docker/build-push-action@v5
+              with:
+                context: .
+                push: true
+                tags: ${{secrets.DOCKER_USERNAME}}/rsac_dashboard:latest
+
+
+
+            
+              
+
+        
+        
+        
+
